@@ -74,6 +74,7 @@ export function CustomBracket({ matches, isAdmin, onMatchClick }: CustomBracketP
                     key={match.id} 
                     match={match} 
                     isAdmin={isAdmin} 
+                    allMatches={matches}
                     onClick={() => onMatchClick(match)} 
                   />
                 ))}
@@ -105,6 +106,7 @@ export function CustomBracket({ matches, isAdmin, onMatchClick }: CustomBracketP
                     key={match.id} 
                     match={match} 
                     isAdmin={isAdmin} 
+                    allMatches={matches}
                     onClick={() => onMatchClick(match)} 
                   />
                 ))}
@@ -117,8 +119,55 @@ export function CustomBracket({ matches, isAdmin, onMatchClick }: CustomBracketP
   );
 }
 
-function MatchCard({ match, isAdmin, onClick }: { match: Match; isAdmin: boolean; onClick: () => void }) {
+function MatchCard({ 
+  match, 
+  isAdmin, 
+  allMatches,
+  onClick 
+}: { 
+  match: Match; 
+  isAdmin: boolean; 
+  allMatches: Match[];
+  onClick: () => void 
+}) {
   const isDone = match.state === "DONE";
+
+  const renderTeamName = (teamId: number | null, team: { name: string } | null, teamIndex: 1 | 2) => {
+    if (team) return team.name;
+    
+    // Find feeders for this match
+    const feeders = allMatches.filter(
+      (m) => m.nextMatchId === match.id || m.nextLooserMatchId === match.id
+    );
+    
+    // Sort by ID to match seeding order
+    feeders.sort((a, b) => a.id - b.id);
+    
+    let feeder: Match | undefined;
+    if (teamIndex === 1) {
+      feeder = feeders[0];
+    } else {
+      // If team1 is set, then the first feeder must be for team2
+      feeder = match.team1Id ? feeders[0] : feeders[1];
+    }
+
+    if (!feeder) return "TBD";
+
+    const isWinnerFeeder = feeder.nextMatchId === match.id;
+    const label = isWinnerFeeder ? "Winner" : "Loser";
+    const colorClass = isWinnerFeeder ? "text-green-500" : "text-red-500";
+
+    return (
+      <span className="flex items-center gap-1.5 whitespace-nowrap">
+        <span className={cn("font-black tracking-tighter uppercase text-[10px]", colorClass)}>
+          {label}
+        </span>
+        <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-tight">
+          of {feeder.tournamentRoundText} #{feeder.id}
+        </span>
+      </span>
+    );
+  };
   
   return (
     <Card 
@@ -141,12 +190,12 @@ function MatchCard({ match, isAdmin, onClick }: { match: Match; isAdmin: boolean
           "flex items-center justify-between px-4 py-3.5 border-b border-border transition-colors",
           match.winnerId === match.team1Id && match.winnerId ? "bg-primary text-primary-foreground" : "text-foreground"
         )}>
-          <span className={cn(
-            "text-sm font-semibold uppercase tracking-tight truncate mr-2",
+          <div className={cn(
+            "text-sm font-semibold uppercase tracking-tight truncate mr-2 flex items-center",
             match.winnerId && match.winnerId !== match.team1Id && "opacity-40"
           )}>
-            {match.team1?.name ?? "TBD"}
-          </span>
+            {renderTeamName(match.team1Id, match.team1, 1)}
+          </div>
           {match.winnerId === match.team1Id && match.winnerId && (
             <Badge className="bg-primary-foreground text-primary text-[8px] font-black rounded-full px-2 h-4 border-none">WINNER</Badge>
           )}
@@ -157,12 +206,12 @@ function MatchCard({ match, isAdmin, onClick }: { match: Match; isAdmin: boolean
           "flex items-center justify-between px-4 py-3.5 transition-colors",
           match.winnerId === match.team2Id && match.winnerId ? "bg-primary text-primary-foreground" : "text-foreground"
         )}>
-          <span className={cn(
-            "text-sm font-semibold uppercase tracking-tight truncate mr-2",
+          <div className={cn(
+            "text-sm font-semibold uppercase tracking-tight truncate mr-2 flex items-center",
             match.winnerId && match.winnerId !== match.team2Id && "opacity-40"
           )}>
-            {match.team2?.name ?? "TBD"}
-          </span>
+            {renderTeamName(match.team2Id, match.team2, 2)}
+          </div>
           {match.winnerId === match.team2Id && match.winnerId && (
             <Badge className="bg-primary-foreground text-primary text-[8px] font-black rounded-full px-2 h-4 border-none">WINNER</Badge>
           )}
