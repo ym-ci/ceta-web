@@ -6,19 +6,23 @@ import { auth } from "~/server/better-auth";
 import { getSession } from "~/server/better-auth/server";
 import { HydrateClient } from "~/trpc/server";
 import { Button } from "~/components/ui/button";
+import { ModeToggle } from "~/components/mode-toggle";
 
 export default async function Home() {
   const session = await getSession();
 
   return (
     <HydrateClient>
-      <main className="flex min-h-screen flex-col items-center justify-center bg-black text-white font-sans">
+      <main className="flex min-h-screen flex-col items-center justify-center bg-background text-foreground font-sans relative">
+        <div className="absolute top-4 right-4">
+          <ModeToggle />
+        </div>
         <div className="container flex flex-col items-center justify-center gap-16 px-4 py-16">
           <div className="flex flex-col items-center gap-4">
             <h1 className="text-6xl font-black tracking-tighter uppercase sm:text-[7rem] leading-none">
               CETA
             </h1>
-            <div className="bg-white text-black px-4 py-1">
+            <div className="bg-foreground text-background px-4 py-1">
               <span className="text-xl font-black uppercase tracking-[0.4em]">Bracket</span>
             </div>
           </div>
@@ -27,7 +31,7 @@ export default async function Home() {
             <Button
               asChild
               variant="outline"
-              className="h-auto border-2 border-white px-12 py-4 text-2xl font-black uppercase tracking-[0.2em] hover:bg-white hover:text-black"
+              className="h-auto border-2 border-foreground px-12 py-4 text-2xl font-black uppercase tracking-[0.2em]"
             >
               <Link href="/bracket">
                 Enter Tournament
@@ -37,7 +41,7 @@ export default async function Home() {
 
           <div className="flex flex-col items-center gap-6 mt-20">
             <div className="flex flex-col items-center justify-center gap-6">
-              <p className="text-center text-xs font-bold uppercase tracking-[0.3em] text-white/40">
+              <p className="text-center text-xs font-bold uppercase tracking-[0.3em] text-foreground/40">
                 {session && <span>Admin Session: {session.user?.email}</span>}
               </p>
               {!session ? (
@@ -46,7 +50,7 @@ export default async function Home() {
                     asChild
                     variant="outline"
                     size="sm"
-                    className="border-white/20 text-[10px] font-bold uppercase tracking-widest hover:border-white"
+                    className="border-foreground/20 text-[10px] font-bold uppercase tracking-widest"
                   >
                     <Link href="/login">
                       Admin Portal
@@ -58,7 +62,7 @@ export default async function Home() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="border-white/20 text-[10px] font-bold uppercase tracking-widest hover:bg-white hover:text-black"
+                    className="border-foreground/20 text-[10px] font-bold uppercase tracking-widest"
                     formAction={async () => {
                       "use server";
                       await auth.api.signOut({

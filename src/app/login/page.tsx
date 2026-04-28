@@ -41,16 +41,16 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-black text-white p-4">
-      <Card className="w-full max-w-md border-white/20 bg-black rounded-none">
+    <main className="flex min-h-screen flex-col items-center justify-center bg-background text-foreground p-4">
+      <Card className="w-full max-w-md border-foreground/20 bg-background rounded-none">
         <CardHeader className="space-y-1">
           <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 border-2 border-white flex items-center justify-center text-2xl font-black">
+            <div className="w-16 h-16 border-2 border-foreground flex items-center justify-center text-2xl font-black">
               C
             </div>
           </div>
           <CardTitle className="text-2xl font-black uppercase tracking-tighter text-center">Admin Access</CardTitle>
-          <CardDescription className="text-white/40 uppercase text-[10px] tracking-[0.3em] text-center">
+          <CardDescription className="text-foreground/40 uppercase text-[10px] tracking-[0.3em] text-center">
             Tournament Management Portal
           </CardDescription>
         </CardHeader>
@@ -64,24 +64,24 @@ export default function LoginPage() {
 
           <form onSubmit={handleLogin} className="flex flex-col gap-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-white/60">Email</label>
+              <label className="text-[10px] font-black uppercase tracking-widest text-foreground/60">Email</label>
               <Input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="rounded-none border-white/10 bg-white/5 focus-visible:ring-0 focus-visible:border-white transition-colors"
+                className="rounded-none border-foreground/10 bg-foreground/5 focus-visible:ring-0 focus-visible:border-foreground transition-colors"
                 placeholder="admin@ceta.com"
                 required
               />
             </div>
             
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-white/60">Password</label>
+              <label className="text-[10px] font-black uppercase tracking-widest text-foreground/60">Password</label>
               <Input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="rounded-none border-white/10 bg-white/5 focus-visible:ring-0 focus-visible:border-white transition-colors"
+                className="rounded-none border-foreground/10 bg-foreground/5 focus-visible:ring-0 focus-visible:border-foreground transition-colors"
                 placeholder="••••••••"
                 required
               />
@@ -91,15 +91,15 @@ export default function LoginPage() {
               type="submit"
               disabled={loading}
               variant="outline"
-              className="w-full h-12 mt-4 rounded-none border-white font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all"
+              className="w-full h-12 mt-4 rounded-none border-foreground font-black uppercase tracking-widest hover:bg-foreground hover:text-background transition-all"
             >
               {loading ? "Verifying..." : "Sign In"}
             </Button>
           </form>
         </CardContent>
         
-        <CardFooter className="flex justify-center border-t border-white/10 mt-6 pt-6">
-          <Button asChild variant="link" className="text-[10px] font-bold uppercase tracking-widest text-white/40 hover:text-white transition-colors p-0 h-auto">
+        <CardFooter className="flex justify-center border-t border-foreground/10 mt-6 pt-6">
+          <Button asChild variant="link" className="text-[10px] font-bold uppercase tracking-widest text-foreground/40 hover:text-foreground transition-colors p-0 h-auto">
             <Link href="/">
               &larr; Terminate Terminal
             </Link>

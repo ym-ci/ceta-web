@@ -19,13 +19,22 @@ const geist = Geist({
   variable: "--font-geist-sans",
 });
 
+import { ThemeProvider } from "~/components/theme-provider";
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={cn(geist.variable, "font-mono", jetbrainsMono.variable)}>
+    <html lang="en" className={cn(geist.variable, "font-mono", jetbrainsMono.variable)} suppressHydrationWarning>
       <body>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <TRPCReactProvider>{children}</TRPCReactProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
