@@ -22,18 +22,18 @@ export default function BracketPage() {
 
   if (isLoading || !mounted) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#15162c] text-white">
-        <div className="text-2xl font-bold animate-pulse">Loading Bracket...</div>
+      <div className="flex min-h-screen items-center justify-center bg-black text-white">
+        <div className="text-sm font-bold uppercase tracking-[0.5em] animate-pulse">Loading</div>
       </div>
     );
   }
 
   if (!matches || matches.length === 0) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#15162c] text-white flex-col gap-4">
-        <div className="text-2xl font-bold">No Bracket Data Found</div>
-        <p>Please run the seeder script first.</p>
-        <Link href="/" className="text-[hsl(280,100%,70%)] hover:underline">Return Home</Link>
+      <div className="flex min-h-screen items-center justify-center bg-black text-white flex-col gap-6">
+        <div className="text-sm font-bold uppercase tracking-[0.3em]">No Data Found</div>
+        <p className="text-xs text-white/40 uppercase tracking-widest">Please run the seeder script.</p>
+        <Link href="/" className="text-xs font-bold border border-white px-4 py-2 hover:bg-white hover:text-black transition-all uppercase tracking-widest">Return Home</Link>
       </div>
     );
   }
@@ -66,46 +66,40 @@ export default function BracketPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f111a] text-white overflow-hidden flex flex-col">
-      <header className="p-4 bg-black/40 backdrop-blur-md border-b border-white/5 flex justify-between items-center z-20">
-        <div className="flex items-center gap-4">
+    <div className="min-h-screen bg-black text-white overflow-hidden flex flex-col font-sans">
+      <header className="p-4 bg-black border-b border-white/10 flex justify-between items-center z-20">
+        <div className="flex items-center gap-6">
           <Link href="/" className="group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-xl font-black group-hover:scale-110 transition-transform">
+            <div className="w-12 h-12 border border-white flex items-center justify-center text-xl font-bold group-hover:bg-white group-hover:text-black transition-all">
               C
             </div>
           </Link>
           <div>
-            <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">
+            <h1 className="text-xl font-bold tracking-tight uppercase">
               Tournament Bracket
             </h1>
-            <p className="text-[10px] text-white/40 uppercase tracking-[0.2em]">CETA Robotics 2026</p>
+            <p className="text-[10px] text-white/40 uppercase tracking-[0.4em]">CETA Robotics 2026</p>
           </div>
         </div>
         
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-8">
           {isAdmin && (
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/20">
-              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-              <span className="text-xs font-bold text-green-400 uppercase tracking-wider">
-                Admin
+            <div className="flex items-center gap-2 px-3 py-1.5 border border-white/20">
+              <div className="w-1.5 h-1.5 bg-white"></div>
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em]">
+                Admin Active
               </span>
             </div>
           )}
-          <nav className="flex items-center gap-4">
-            <Link href="/" className="text-sm font-medium text-white/60 hover:text-white transition-colors">
+          <nav className="flex items-center gap-6">
+            <Link href="/" className="text-xs font-bold uppercase tracking-widest text-white/40 hover:text-white transition-colors">
               Home
             </Link>
           </nav>
         </div>
       </header>
       
-      <main className="flex-1 relative overflow-hidden">
-        {/* Background decorative elements */}
-        <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
-          <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-blue-600/10 blur-[120px] rounded-full"></div>
-          <div className="absolute -bottom-[20%] -right-[10%] w-[50%] h-[50%] bg-purple-600/10 blur-[120px] rounded-full"></div>
-        </div>
-
+      <main className="flex-1 relative overflow-hidden bg-black">
         <div className="relative z-10 h-full">
           <CustomBracket 
             matches={matches} 
@@ -116,9 +110,9 @@ export default function BracketPage() {
       </main>
 
       {isAdmin && (
-        <footer className="p-3 bg-blue-600/10 border-t border-blue-500/20 text-center">
-          <p className="text-xs font-medium text-blue-300/80">
-            Click on any match to record the outcome and advance teams
+        <footer className="p-2 bg-white text-black text-center">
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em]">
+            Admin Mode: Click match to record outcome
           </p>
         </footer>
       )}

@@ -51,14 +51,11 @@ async function seed() {
     // LOSERS ROUND 3
     { id: 12, tournamentRoundText: "L-R3", state: "SCHEDULED", isLoserBracket: true, team1Id: null, team2Id: null, nextMatchId: 13, nextLooserMatchId: null },
     
-    // WINNERS FINAL
-    { id: 11, tournamentRoundText: "W-Final", state: "SCHEDULED", isLoserBracket: false, team1Id: null, team2Id: null, nextMatchId: 14, nextLooserMatchId: 13 },
+    // WINNERS FINAL (1st Place decided here)
+    { id: 11, tournamentRoundText: "W-Final", state: "SCHEDULED", isLoserBracket: false, team1Id: null, team2Id: null, nextMatchId: null, nextLooserMatchId: 13 },
     
-    // LOSERS FINAL
-    { id: 13, tournamentRoundText: "L-Final", state: "SCHEDULED", isLoserBracket: true, team1Id: null, team2Id: null, nextMatchId: 14, nextLooserMatchId: null },
-    
-    // GRAND FINAL
-    { id: 14, tournamentRoundText: "Grand Final", state: "SCHEDULED", isLoserBracket: false, team1Id: null, team2Id: null, nextMatchId: null, nextLooserMatchId: null },
+    // LOSERS FINAL (2nd and 3rd Place decided here)
+    { id: 13, tournamentRoundText: "L-Final", state: "SCHEDULED", isLoserBracket: true, team1Id: null, team2Id: null, nextMatchId: null, nextLooserMatchId: null },
   ];
 
   await db.insert(match).values(matchesToInsert);

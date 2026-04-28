@@ -11,36 +11,41 @@ export default async function Home() {
 
   return (
     <HydrateClient>
-      <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-        <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
-          <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
-            CETA <span className="text-[hsl(280,100%,70%)]">Bracket</span>
-          </h1>
-          
+      <main className="flex min-h-screen flex-col items-center justify-center bg-black text-white font-sans">
+        <div className="container flex flex-col items-center justify-center gap-16 px-4 py-16">
           <div className="flex flex-col items-center gap-4">
+            <h1 className="text-6xl font-black tracking-tighter uppercase sm:text-[7rem] leading-none">
+              CETA
+            </h1>
+            <div className="bg-white text-black px-4 py-1">
+              <span className="text-xl font-black uppercase tracking-[0.4em]">Bracket</span>
+            </div>
+          </div>
+          
+          <div className="flex flex-col items-center gap-8">
             <Link
               href="/bracket"
-              className="rounded-full bg-white/10 px-10 py-3 font-semibold text-2xl no-underline transition hover:bg-white/20"
+              className="border-2 border-white px-12 py-4 font-black text-2xl uppercase tracking-[0.2em] transition-all hover:bg-white hover:text-black"
             >
-              View Tournament Bracket
+              Enter Tournament
             </Link>
           </div>
 
-          <div className="flex flex-col items-center gap-2 mt-12">
-            <div className="flex flex-col items-center justify-center gap-4">
-              <p className="text-center text-xl text-white">
-                {session && <span>Logged in as Admin ({session.user?.email})</span>}
+          <div className="flex flex-col items-center gap-6 mt-20">
+            <div className="flex flex-col items-center justify-center gap-6">
+              <p className="text-center text-xs font-bold uppercase tracking-[0.3em] text-white/40">
+                {session && <span>Admin Session: {session.user?.email}</span>}
               </p>
               {!session ? (
                 <div className="flex gap-4">
-                  <Link href="/login" className="rounded-full bg-white/10 px-6 py-2 font-semibold no-underline transition hover:bg-white/20">
-                    Admin Login
+                  <Link href="/login" className="text-[10px] font-bold uppercase tracking-widest border border-white/20 px-6 py-2 hover:border-white transition-colors">
+                    Admin Portal
                   </Link>
                 </div>
               ) : (
                 <form>
                   <button
-                    className="rounded-full bg-red-500/20 px-6 py-2 font-semibold no-underline transition hover:bg-red-500/40 text-red-200"
+                    className="text-[10px] font-bold uppercase tracking-widest border border-white/20 px-6 py-2 hover:bg-white hover:text-black transition-all"
                     formAction={async () => {
                       "use server";
                       await auth.api.signOut({
@@ -49,7 +54,7 @@ export default async function Home() {
                       redirect("/");
                     }}
                   >
-                    Sign out
+                    Terminate Session
                   </button>
                 </form>
               )}
