@@ -199,35 +199,42 @@ function generateBracket(insertedTeams: { id: number }[]) {
     for (let i = 0; i < matches.length; i++) {
       const m = matches[i]!;
       
-      // A match can be culled if it's a bye (exactly 1 team) or empty (0 teams)
-      // AND no other active matches are feeding into it.
-      const isWaiting = matches.some(other => 
+      // A match is a bye or empty if it can never have more than 1 team.
+      // This happens if (teams already seeded) + (matches pointing to this match) <= 1.
+      const feeders = matches.filter(other => 
         other.nextMatchId === m.id || other.nextLooserMatchId === m.id
       );
-
-      if (!isWaiting) {
-        const teamCount = (m.team1Id !== null ? 1 : 0) + (m.team2Id !== null ? 1 : 0);
+      const teamCount = (m.team1Id !== null ? 1 : 0) + (m.team2Id !== null ? 1 : 0);
+      
+      if (teamCount + feeders.length <= 1) {
+        const teamId = m.team1Id ?? m.team2Id;
         
-        // If it's a bye or empty, we can cull it
-        if (teamCount <= 1) {
-          const teamId = m.team1Id ?? m.team2Id;
-          
-          // If there's a team, advance it to the next match
-          if (teamId && m.nextMatchId) {
-            const nextM = matches.find(nm => nm.id === m.nextMatchId);
-            if (nextM) {
-              if (nextM.team1Id === null) {
-                nextM.team1Id = teamId;
-              } else if (nextM.team2Id === null) {
-                nextM.team2Id = teamId;
-              }
+        // 1. If there's a team, advance it to the next match
+        if (teamId && m.nextMatchId) {
+          const nextM = matches.find(nm => nm.id === m.nextMatchId);
+          if (nextM) {
+            if (nextM.team1Id === null) {
+              nextM.team1Id = teamId;
+            } else if (nextM.team2Id === null) {
+              nextM.team2Id = teamId;
             }
           }
-          
-          matches.splice(i, 1);
-          changed = true;
-          break; // Start over after modification
         }
+        
+        // 2. Redirect all feeders to point to the next match
+        for (const feeder of feeders) {
+          if (feeder.nextMatchId === m.id) {
+            feeder.nextMatchId = m.nextMatchId;
+          }
+          if (feeder.nextLooserMatchId === m.id) {
+            feeder.nextLooserMatchId = m.nextMatchId;
+          }
+        }
+        
+        // 3. Remove the match
+        matches.splice(i, 1);
+        changed = true;
+        break; // Start over after modification
       }
     }
   }
