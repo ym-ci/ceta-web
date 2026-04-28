@@ -27,10 +27,23 @@ export function CustomBracket({ matches, isAdmin, onMatchClick }: CustomBracketP
       rounds[m.tournamentRoundText] ??= [];
       rounds[m.tournamentRoundText]!.push(m);
     });
-    // Sort rounds
+    // Sort rounds dynamically
     return Object.entries(rounds).sort((a, b) => {
-        const order = ["W-R1", "W-R2", "W-R3", "W-Final", "L-R1", "L-R2", "L-R3", "L-Final"];
-        return order.indexOf(a[0]) - order.indexOf(b[0]);
+        const roundA = a[0];
+        const roundB = b[0];
+
+        // Finals always go last
+        if (roundA.includes("-Final")) return 1;
+        if (roundB.includes("-Final")) return -1;
+
+        // Extract the round number (e.g., "W-R1" -> 1)
+        const matchA = /R(\d+)/.exec(roundA);
+        const matchB = /R(\d+)/.exec(roundB);
+        
+        const numA = matchA ? parseInt(matchA[1]!) : 0;
+        const numB = matchB ? parseInt(matchB[1]!) : 0;
+
+        return numA - numB;
     });
   };
 

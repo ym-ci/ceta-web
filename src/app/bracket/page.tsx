@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { api } from "~/trpc/react";
+import { api, type RouterOutputs } from "~/trpc/react";
 import Link from "next/link";
 import { authClient } from "~/server/better-auth/client";
 import { CustomBracket } from "./CustomBracket";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
+
+type Match = RouterOutputs["bracket"]["getAllMatches"][number];
 import {
   Dialog,
   DialogContent,
@@ -21,7 +23,7 @@ export default function BracketPage() {
   const { data: matches, isLoading, refetch } = api.bracket.getAllMatches.useQuery();
   const updateMatchMutation = api.bracket.updateMatch.useMutation({
     onSuccess: () => {
-      refetch();
+      void refetch();
       setIsDialogOpen(false);
       setSelectedMatch(null);
     },
@@ -31,7 +33,7 @@ export default function BracketPage() {
   const isAdmin = !!sessionData?.session;
 
   const [mounted, setMounted] = useState(false);
-  const [selectedMatch, setSelectedMatch] = useState<any>(null);
+  const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
@@ -78,7 +80,7 @@ export default function BracketPage() {
     );
   }
 
-  const handleMatchClick = (match: any) => {
+  const handleMatchClick = (match: Match) => {
     if (!isAdmin) return;
     
     if (!match.team1 || !match.team2) {
@@ -161,7 +163,7 @@ export default function BracketPage() {
             <Button 
               variant="outline" 
               className="w-full justify-between h-16 rounded-xl border-border hover:border-primary/50 hover:bg-primary/5 transition-all group px-4"
-              onClick={() => selectedMatch && handleSetWinner(selectedMatch.team1.id)}
+              onClick={() => selectedMatch?.team1 && handleSetWinner(selectedMatch.team1.id)}
               disabled={updateMatchMutation.isPending}
             >
               <span className="font-bold tracking-tight uppercase text-base">{selectedMatch?.team1?.name}</span>
@@ -182,7 +184,7 @@ export default function BracketPage() {
             <Button 
               variant="outline" 
               className="w-full justify-between h-16 rounded-xl border-border hover:border-primary/50 hover:bg-primary/5 transition-all group px-4"
-              onClick={() => selectedMatch && handleSetWinner(selectedMatch.team2.id)}
+              onClick={() => selectedMatch?.team2 && handleSetWinner(selectedMatch.team2.id)}
               disabled={updateMatchMutation.isPending}
             >
               <span className="font-bold tracking-tight uppercase text-base">{selectedMatch?.team2?.name}</span>
