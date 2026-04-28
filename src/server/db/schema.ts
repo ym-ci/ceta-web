@@ -1,7 +1,6 @@
 import { relations } from "drizzle-orm";
 import {
   boolean,
-  index,
   pgTable,
   pgTableCreator,
   text,
@@ -10,26 +9,24 @@ import {
 
 export const createTable = pgTableCreator((name) => `pg-drizzle_${name}`);
 
-export const posts = createTable(
-  "post",
-  (d) => ({
-    id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
-    name: d.varchar({ length: 256 }),
-    createdById: d
-      .varchar({ length: 255 })
-      .notNull()
-      .references(() => user.id),
-    createdAt: d
-      .timestamp({ withTimezone: true })
-      .$defaultFn(() => new Date())
-      .notNull(),
-    updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
-  }),
-  (t) => [
-    index("created_by_idx").on(t.createdById),
-    index("name_idx").on(t.name),
-  ],
-);
+
+
+export const team = createTable("team", (d) => ({
+  id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+  name: d.varchar({ length: 256 }).notNull(),
+}));
+
+export const match = createTable("match", (d) => ({
+  id: d.integer().primaryKey(),
+  nextMatchId: d.integer(), // null if final
+  nextLooserMatchId: d.integer(), // null if loser is eliminated
+  tournamentRoundText: d.varchar({ length: 256 }).notNull(),
+  state: d.varchar({ length: 256 }).notNull(), // 'SCHEDULED', 'DONE'
+  team1Id: d.integer().references(() => team.id),
+  team2Id: d.integer().references(() => team.id),
+  winnerId: d.integer().references(() => team.id),
+  isLoserBracket: boolean("is_loser_bracket").default(false).notNull(),
+}));
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -103,3 +100,10 @@ export const accountRelations = relations(account, ({ one }) => ({
 export const sessionRelations = relations(session, ({ one }) => ({
   user: one(user, { fields: [session.userId], references: [user.id] }),
 }));
+
+export const matchRelations = relations(match, ({ one }) => ({
+  team1: one(team, { fields: [match.team1Id], references: [team.id] }),
+  team2: one(team, { fields: [match.team2Id], references: [team.id] }),
+  winner: one(team, { fields: [match.winnerId], references: [team.id] }),
+}));
+
