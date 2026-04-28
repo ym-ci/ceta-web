@@ -38,20 +38,21 @@ export function CustomBracket({ matches, isAdmin, onMatchClick }: CustomBracketP
   const losersRounds = groupByRound(losersMatches);
 
   return (
-    <div className="flex flex-col gap-16 p-12 overflow-auto h-full scrollbar-thin scrollbar-track-transparent scrollbar-thumb-foreground/10 transition-all">
+    <div className="flex flex-col gap-16 p-8 md:p-12 overflow-auto h-full scrollbar-thin scrollbar-track-transparent scrollbar-thumb-muted transition-all">
       {/* Winners Bracket */}
       <section className="relative">
-        <div className="sticky left-0 z-10 mb-8 flex items-center gap-3 bg-background/80 backdrop-blur-sm py-2">
-          <Separator orientation="vertical" className="h-8 w-1 bg-foreground" />
+        <div className="sticky left-0 z-10 mb-8 flex items-center gap-4">
+          <div className="h-10 w-1 rounded-full bg-primary" />
           <div>
-            <h2 className="text-2xl font-bold tracking-tighter text-foreground uppercase">Winners Bracket</h2>
-            <p className="text-[10px] text-foreground/30 uppercase tracking-[0.5em]">Championship Path</p>
+            <h2 className="text-3xl font-bold tracking-tight text-foreground uppercase">Winners Bracket</h2>
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest">Championship Path</p>
           </div>
         </div>
-        <div className="flex gap-20 items-start pb-4">
+        <div className="flex gap-12 items-start pb-4">
           {winnersRounds.map(([roundName, roundMatches]) => (
-            <div key={roundName} className="flex flex-col gap-8 min-w-[240px]">
-              <div className="text-xs font-bold uppercase tracking-widest text-foreground/40 mb-2 px-2">
+            <div key={roundName} className="flex flex-col gap-6 min-w-[280px]">
+              <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/70 mb-2 px-2 flex items-center gap-2">
+                <span className="h-px w-4 bg-muted-foreground/20" />
                 {roundName}
               </div>
               <div className="flex flex-col justify-around h-full gap-8">
@@ -71,17 +72,18 @@ export function CustomBracket({ matches, isAdmin, onMatchClick }: CustomBracketP
 
       {/* Losers Bracket */}
       <section className="relative">
-        <div className="sticky left-0 z-10 mb-8 flex items-center gap-3 bg-background/80 backdrop-blur-sm py-2">
-          <Separator orientation="vertical" className="h-8 w-1 bg-foreground/40" />
+        <div className="sticky left-0 z-10 mb-8 flex items-center gap-4">
+          <div className="h-10 w-1 rounded-full bg-muted-foreground/40" />
           <div>
-            <h2 className="text-2xl font-bold tracking-tighter text-foreground uppercase">Losers Bracket</h2>
-            <p className="text-[10px] text-foreground/30 uppercase tracking-[0.5em]">Redemption Path</p>
+            <h2 className="text-3xl font-bold tracking-tight text-foreground uppercase">Losers Bracket</h2>
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest">Redemption Path</p>
           </div>
         </div>
-        <div className="flex gap-20 items-start pb-4">
+        <div className="flex gap-12 items-start pb-4">
           {losersRounds.map(([roundName, roundMatches]) => (
-            <div key={roundName} className="flex flex-col gap-8 min-w-[240px]">
-              <div className="text-xs font-bold uppercase tracking-widest text-foreground/40 mb-2 px-2">
+            <div key={roundName} className="flex flex-col gap-6 min-w-[280px]">
+              <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/70 mb-2 px-2 flex items-center gap-2">
+                <span className="h-px w-4 bg-muted-foreground/20" />
                 {roundName}
               </div>
               <div className="flex flex-col justify-around h-full gap-8">
@@ -108,14 +110,14 @@ function MatchCard({ match, isAdmin, onClick }: { match: Match; isAdmin: boolean
   return (
     <Card 
       className={cn(
-        "group relative flex flex-col w-full rounded-none overflow-hidden border-foreground/10 bg-transparent transition-all duration-200",
-        isAdmin && "cursor-pointer",
-        isDone && "bg-foreground/5 border-foreground/20"
+        "group relative flex flex-col w-full rounded-xl overflow-hidden border-border bg-card/50 shadow-sm transition-all duration-200 hover:shadow-md hover:border-primary/20",
+        isAdmin && "cursor-pointer active:scale-[0.98]",
+        isDone && "bg-muted/30"
       )}
       onClick={onClick}
     >
-      <div className="absolute top-0 right-0 z-10">
-        <Badge variant="outline" className="rounded-none border-none bg-foreground/5 text-[9px] font-mono text-foreground/30 px-1.5 py-0.5">
+      <div className="absolute top-2 right-2 z-10">
+        <Badge variant="secondary" className="rounded-full bg-background/50 backdrop-blur-sm text-[8px] font-mono text-muted-foreground px-2 py-0 border-none">
           #{match.id}
         </Badge>
       </div>
@@ -123,48 +125,57 @@ function MatchCard({ match, isAdmin, onClick }: { match: Match; isAdmin: boolean
       <CardContent className="p-0">
         {/* Team 1 */}
         <div className={cn(
-          "flex items-center justify-between p-3 border-b border-foreground/10 transition-colors",
-          match.winnerId === match.team1Id && match.winnerId ? "bg-foreground text-background" : "text-foreground/60"
+          "flex items-center justify-between px-4 py-3.5 border-b border-border transition-colors",
+          match.winnerId === match.team1Id && match.winnerId ? "bg-primary text-primary-foreground" : "text-foreground"
         )}>
-          <span className="text-xs font-bold uppercase tracking-wider truncate mr-2">
+          <span className={cn(
+            "text-sm font-semibold uppercase tracking-tight truncate mr-2",
+            match.winnerId && match.winnerId !== match.team1Id && "opacity-40"
+          )}>
             {match.team1?.name ?? "TBD"}
           </span>
           {match.winnerId === match.team1Id && match.winnerId && (
-            <Badge className="bg-background text-foreground text-[8px] font-black rounded-none px-1 h-3.5 border-none">WINNER</Badge>
+            <Badge className="bg-primary-foreground text-primary text-[8px] font-black rounded-full px-2 h-4 border-none">WINNER</Badge>
           )}
         </div>
 
         {/* Team 2 */}
         <div className={cn(
-          "flex items-center justify-between p-3 transition-colors",
-          match.winnerId === match.team2Id && match.winnerId ? "bg-foreground text-background" : "text-foreground/60"
+          "flex items-center justify-between px-4 py-3.5 transition-colors",
+          match.winnerId === match.team2Id && match.winnerId ? "bg-primary text-primary-foreground" : "text-foreground"
         )}>
-          <span className="text-xs font-bold uppercase tracking-wider truncate mr-2">
+          <span className={cn(
+            "text-sm font-semibold uppercase tracking-tight truncate mr-2",
+            match.winnerId && match.winnerId !== match.team2Id && "opacity-40"
+          )}>
             {match.team2?.name ?? "TBD"}
           </span>
           {match.winnerId === match.team2Id && match.winnerId && (
-            <Badge className="bg-background text-foreground text-[8px] font-black rounded-none px-1 h-3.5 border-none">WINNER</Badge>
+            <Badge className="bg-primary-foreground text-primary text-[8px] font-black rounded-full px-2 h-4 border-none">WINNER</Badge>
           )}
         </div>
 
         {/* Result Badges for Finals */}
         {(match.tournamentRoundText === "W-Final" || match.tournamentRoundText === "L-Final") && isDone && (
-          <div className="bg-foreground px-2 py-1.5 flex flex-col gap-1 border-t border-background/10">
+          <div className="bg-primary/10 px-3 py-3 flex flex-col gap-1 border-t border-primary/20">
             {match.tournamentRoundText === "W-Final" && (
-              <p className="text-[9px] font-black text-background uppercase tracking-[0.1em] text-center">
-                1ST: {match.winner?.name}
-              </p>
+              <div className="flex flex-col items-center">
+                <span className="text-[9px] font-bold text-primary/60 uppercase tracking-[0.2em] mb-1">Champion</span>
+                <p className="text-xs font-black text-primary uppercase tracking-wider text-center">
+                  {match.winner?.name}
+                </p>
+              </div>
             )}
             {match.tournamentRoundText === "L-Final" && (
               <div className="flex justify-around items-center">
                 <div className="text-center">
-                  <p className="text-[6px] text-background/40 uppercase font-black leading-none">2nd</p>
-                  <p className="text-[8px] font-black text-background uppercase leading-tight">{match.winner?.name}</p>
+                  <p className="text-[8px] text-primary/60 uppercase font-black leading-none mb-1">2nd</p>
+                  <p className="text-[10px] font-black text-primary uppercase leading-tight">{match.winner?.name}</p>
                 </div>
-                <Separator orientation="vertical" className="h-4 bg-background/10" />
+                <Separator orientation="vertical" className="h-6 bg-primary/20" />
                 <div className="text-center">
-                  <p className="text-[6px] text-background/40 uppercase font-black leading-none">3rd</p>
-                  <p className="text-[8px] font-black text-background uppercase leading-tight">
+                  <p className="text-[8px] text-primary/60 uppercase font-black leading-none mb-1">3rd</p>
+                  <p className="text-[10px] font-black text-primary uppercase leading-tight">
                     {match.winnerId === match.team1Id ? match.team2?.name : match.team1?.name}
                   </p>
                 </div>
@@ -173,7 +184,7 @@ function MatchCard({ match, isAdmin, onClick }: { match: Match; isAdmin: boolean
           </div>
         )}
       </CardContent>
-
     </Card>
   );
 }
+
