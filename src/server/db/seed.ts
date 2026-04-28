@@ -1,18 +1,11 @@
 import { db } from "./index";
 import { team, match } from "./schema";
 
-const defaultTeamNames = [
-  "LEV", "Meta Knight", "Nightfury", "GuardianBots", "Rust*eze", "Asparagus", 
-  "Locked", "LAAL", "SKY", "The Wingho Riders", "ACCI 1", "ACCI 2", 
-  "Jetson - Red", "JAYL", "Jetson - Green", "Jetson - Yellow", "Jetson - Blue", 
-  "Central Tech ICT", "RobotsGoBrrr", "Chris Hadfield", "Group 1", "Northern Alpha", 
-  "Group 2", "Decepticepticons", "The wild Apes", "Kraftarm", "Tech Gurus", 
-  "Northern Gamma", "Northern Beta", "Satec", "Team Finality", "ACCI solo"
-];
+const defaultTeamNames = ["Haig Robotics A", "Haig Robotics B", "Moody Robot", "Savage", "Cooked Cornball", "Little Jeremy", "Good Bot", "Devious Birds", "Hatchlings", "SATEC 1", "W.A.rriors", "3 Musketeers", "The Bethlings", "Chorgirand the sesame seed", "Hamer", "TigerBots", "YM Zipties"];
 
 async function seed(customNames?: string[]) {
   const teamNames = customNames && customNames.length > 0 ? customNames : defaultTeamNames;
-  
+
   console.log(`Seeding database with ${teamNames.length} teams...`);
 
   // eslint-disable-next-line drizzle/enforce-delete-with-where
@@ -34,7 +27,7 @@ async function seed(customNames?: string[]) {
   const matchesToInsert = generateBracket(shuffledTeams);
 
   await db.insert(match).values(matchesToInsert);
-  
+
   console.log(`Seeded ${matchesToInsert.length} matches successfully!`);
   process.exit(0);
 }
@@ -69,25 +62,51 @@ function generateBracket(insertedTeams: { id: number }[]) {
   const n = insertedTeams.length;
   if (n === 0) return [];
 
-  // Round up to nearest power of 2 for the bracket structure
-  const k = Math.ceil(Math.log2(n));
-  const bracketSize = Math.pow(2, k);
+  // Determine the bracket structure
+  const fullK = Math.ceil(Math.log2(n)); // Rounds for a full bracket with n teams
+  const largestPowerOf2 = Math.pow(2, fullK - 1); // Largest power of 2 <= n
+  const seedingRounds = Math.log2(largestPowerOf2); // Rounds needed for the seeding bracket
+  const r1Matches = largestPowerOf2 / 2; // Matches in round 1
+  const actualK = Math.log2(r1Matches) + 1; // Actual rounds needed for the bracket structure
+  const byeTeamsCount = n - largestPowerOf2; // Teams that get byes to R2
+
+  console.log(`\n=== Bracket Generation ===`);
+  console.log(`Teams count: ${n}`);
+  console.log(`Largest power of 2 <= n: ${largestPowerOf2}`);
+  console.log(`Round 1 matches: ${r1Matches}`);
+  console.log(`Actual rounds needed: ${actualK}`);
+  console.log(`Bye teams: ${byeTeamsCount}`);
+
+  // Get seeding for the largest power of 2 that's <= n
+  const seeding = getSeeding(largestPowerOf2);
   
-  // Standard tournament seeding (e.g., 1 vs 16, 8 vs 9, etc.)
-  const seeding = getSeeding(bracketSize);
+  // Track bye teams (seeds after largestPowerOf2)
+  const byeTeams: { seedNum: number; teamId: number }[] = [];
+  for (let i = largestPowerOf2; i < n; i++) {
+    byeTeams.push({
+      seedNum: i + 1,
+      teamId: insertedTeams[i]?.id ?? 0,
+    });
+  }
   
+  if (byeTeamsCount > 0) {
+    console.log(`\nBye team seeds: ${byeTeams.map(t => t.seedNum).join(", ")}`);
+  }
+
   const matches: MatchInsert[] = [];
   let currentMatchId = 1;
 
   // Winners Bracket (WB)
   const wb: MatchInsert[][] = [];
-  for (let r = 0; r < k; r++) {
-    const numMatchesInRound = bracketSize / Math.pow(2, r + 1);
+  for (let r = 0; r < actualK; r++) {
+    const numMatchesInRound = Math.pow(2, Math.log2(r1Matches) - r);
+    console.log(`\nWB Round ${r + 1}: ${numMatchesInRound} matches`);
+    
     const roundMatches: MatchInsert[] = [];
     for (let m = 0; m < numMatchesInRound; m++) {
       const matchObj: MatchInsert = {
         id: currentMatchId++,
-        tournamentRoundText: r === k - 1 ? "W-Final" : `W-R${r + 1}`,
+        tournamentRoundText: r === actualK - 1 ? "W-Final" : `W-R${r + 1}`,
         state: "SCHEDULED",
         isLoserBracket: false,
         team1Id: null,
@@ -95,21 +114,35 @@ function generateBracket(insertedTeams: { id: number }[]) {
         nextMatchId: null,
         nextLooserMatchId: null,
       };
-      
-      // Seed teams into the first round using tournament seeding
+
+      // For round 1, seed teams from the seeding array
       if (r === 0) {
         const seed1 = seeding[m * 2];
         const seed2 = seeding[m * 2 + 1];
-        
-        // Seed numbers are 1-indexed, insertedTeams is 0-indexed
-        if (seed1 !== undefined) {
+
+        // Team indices are 0-based
+        if (seed1 !== undefined && seed1 - 1 < n) {
           matchObj.team1Id = insertedTeams[seed1 - 1]?.id ?? null;
         }
-        if (seed2 !== undefined) {
+        if (seed2 !== undefined && seed2 - 1 < n) {
           matchObj.team2Id = insertedTeams[seed2 - 1]?.id ?? null;
         }
+
+        console.log(`  Match ${m + 1}: Seed ${seed1} (Team ID: ${matchObj.team1Id}) vs Seed ${seed2} (Team ID: ${matchObj.team2Id})`);
       }
-      
+      // For round 2, place bye teams in the last match slots
+      else if (r === 1) {
+        if (byeTeamsCount > 0 && m >= numMatchesInRound - byeTeamsCount) {
+          const byeIdx = m - (numMatchesInRound - byeTeamsCount);
+          if (byeTeams[byeIdx]) {
+            matchObj.team2Id = byeTeams[byeIdx].teamId;
+            console.log(`  Match ${m + 1}: (Winner from R1) vs Seed ${byeTeams[byeIdx].seedNum} (Team ID: ${matchObj.team2Id}) [BYE]`);
+          }
+        } else {
+          console.log(`  Match ${m + 1}: (Winners from R1 Match ${m + 1} & ${m + 2})`);
+        }
+      }
+
       roundMatches.push(matchObj);
       matches.push(matchObj);
     }
@@ -117,13 +150,15 @@ function generateBracket(insertedTeams: { id: number }[]) {
   }
 
   // Losers Bracket (LB)
-  // Total LB rounds = 2k - 2
+  // Total LB rounds = 2*actualK - 2
   const lb: MatchInsert[][] = [];
-  for (let r = 0; r < 2 * k - 2; r++) {
-    const numMatchesInRound = Math.pow(2, k - 2 - Math.floor(r / 2));
+  const lbRounds = 2 * actualK - 2;
+  for (let r = 0; r < lbRounds; r++) {
+    const numMatchesInRound = Math.pow(2, Math.log2(r1Matches) - 1 - Math.floor(r / 2));
+    console.log(`LB Round ${r + 1}: ${numMatchesInRound} matches`);
     const roundMatches: MatchInsert[] = [];
     for (let m = 0; m < numMatchesInRound; m++) {
-      const isFinal = r === 2 * k - 3;
+      const isFinal = r === lbRounds - 1;
       const matchObj: MatchInsert = {
         id: currentMatchId++,
         tournamentRoundText: isFinal ? "L-Final" : `L-R${r + 1}`,
@@ -143,7 +178,7 @@ function generateBracket(insertedTeams: { id: number }[]) {
   // --- CONNECT MATCHES ---
 
   // Connect WB to next WB matches and LB matches
-  for (let r = 0; r < k - 1; r++) {
+  for (let r = 0; r < actualK - 1; r++) {
     const currentRound = wb[r];
     const nextRound = wb[r + 1];
     if (!currentRound || !nextRound) continue;
@@ -170,9 +205,9 @@ function generateBracket(insertedTeams: { id: number }[]) {
   }
 
   // Winners Final loser goes to Losers Final
-  if (k > 0) {
-    const winnersFinal = wb[k - 1]?.[0];
-    const losersFinal = lb[2 * k - 3]?.[0];
+  if (actualK > 0) {
+    const winnersFinal = wb[actualK - 1]?.[0];
+    const losersFinal = lb[lbRounds - 1]?.[0];
     if (winnersFinal && losersFinal) {
       winnersFinal.nextLooserMatchId = losersFinal.id;
     }
@@ -198,6 +233,12 @@ function generateBracket(insertedTeams: { id: number }[]) {
       }
     }
   }
+
+  console.log(`\n=== Bracket Summary ===`);
+  console.log(`Total matches created: ${matches.length}`);
+  console.log(`Winners bracket rounds: ${wb.length}`);
+  console.log(`Losers bracket rounds: ${lb.length}`);
+  console.log(`================================\n`);
 
   return matches;
 }
