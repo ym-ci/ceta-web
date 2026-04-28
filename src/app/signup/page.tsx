@@ -20,9 +20,9 @@ export default function SignupPage() {
 
   useEffect(() => {
     // Only disable in true production environment
-    if (process.env.NODE_ENV === "production") {
-      setIsProd(true);
-    }
+    // if (process.env.NODE_ENV === "production") {
+    //   setIsProd(true);
+    // }
   }, []);
 
   const handleSignup = async (e: React.FormEvent) => {
