@@ -8,7 +8,8 @@ export const auth = betterAuth({
     provider: "pg", // or "pg" or "mysql"
   }),
   emailAndPassword: {
-    enabled: process.env.NODE_ENV === "development",
+    enabled: true,
+    disableSignUp: process.env.NODE_ENV === "production", // Disable sign-up in production
   },
 });
 
