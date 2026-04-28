@@ -239,7 +239,63 @@ function generateBracket(insertedTeams: { id: number }[]) {
     }
   }
 
-  return matches;
+  // --- SORT MATCHES ---
+  // Sort matches to interleave Winners and Losers bracket rounds
+  matches.sort((a, b) => {
+    const getSortValue = (m: MatchInsert) => {
+      const roundText = m.tournamentRoundText;
+      if (m.isLoserBracket) {
+        if (roundText === "L-Final") return k + 0.1;
+        const num = parseInt(roundText.replace("L-R", ""));
+        if (isNaN(num)) return 999;
+        if (num === 1) return 1.1;
+        const wbRound = Math.floor((num - 2) / 2) + 2;
+        const subRound = (num - 2) % 2 + 1;
+        return wbRound + subRound * 0.1;
+      } else {
+        if (roundText === "W-Final") return k;
+        const num = parseInt(roundText.replace("W-R", ""));
+        if (isNaN(num)) return 998;
+        return num;
+      }
+    };
+    
+    const sortA = getSortValue(a);
+    const sortB = getSortValue(b);
+    
+    if (sortA !== sortB) return sortA - sortB;
+    // Within the same round, preserve the original creation order
+    return (a.id as number) - (b.id as number);
+  });
+
+  // --- RE-INDEX MATCHES ---
+  // Create a map of old IDs to new sequential IDs
+  const idMap = new Map<number, number>();
+  const finalMatches: MatchInsert[] = [];
+  
+  // First pass: Assign new IDs and build the map
+  matches.forEach((m, index) => {
+    const oldId = m.id as number;
+    const newId = index + 1;
+    idMap.set(oldId, newId);
+    
+    finalMatches.push({
+      ...m,
+      id: newId
+    });
+  });
+
+  // Second pass: Update nextMatchId and nextLooserMatchId references
+  finalMatches.forEach(m => {
+    if (m.nextMatchId !== null && m.nextMatchId !== undefined) {
+      m.nextMatchId = idMap.get(m.nextMatchId as number) ?? null;
+    }
+    if (m.nextLooserMatchId !== null && m.nextLooserMatchId !== undefined) {
+      m.nextLooserMatchId = idMap.get(m.nextLooserMatchId as number) ?? null;
+    }
+  });
+
+  return finalMatches;
 }
 
 
