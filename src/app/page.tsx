@@ -17,7 +17,7 @@ export default async function Home() {
         <div className="absolute top-4 right-4">
           <ModeToggle />
         </div>
-        <div className="container flex flex-col items-center justify-center gap-16 px-4 py-16">
+        <div className="container flex flex-col items-center justify-center gap-8 px-4 py-16">
           <div className="flex flex-col items-center">
             <h1 className="text-6xl font-black tracking-tighter uppercase sm:text-[7rem] leading-none">
               CETA
@@ -26,6 +26,12 @@ export default async function Home() {
             <div className="bg-foreground text-background px-4 py-1">
               <span className="text-xl font-black uppercase tracking-[0.4em]">@ York Mills CI</span>
             </div>
+          </div>
+          <div className="flex flex-col items-center gap-8">
+            <h2 className="text-4xl font-black tracking-tighter uppercase">
+              Watch Live
+            </h2>
+            <iframe src="https://www.youtube.com/embed/gGcPor_oriM" className="w-25% aspect-video min-w-xl" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen></iframe>
           </div>
           
           <div className="flex flex-col items-center gap-8">
@@ -40,7 +46,9 @@ export default async function Home() {
             </Button>
           </div>
 
-          <div className="flex flex-col items-center gap-6 mt-20">
+
+
+          <div className="flex flex-col items-center gap-6 mt-auto">
             <div className="flex flex-col items-center justify-center gap-6">
               <p className="text-center text-xs font-bold uppercase tracking-[0.3em] text-foreground/40">
                 {session && <span>Logged in as {session.user?.email}</span>}
