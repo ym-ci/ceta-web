@@ -1,14 +1,7 @@
 import { db } from "./index";
 import { team, match } from "./schema";
 
-const defaultTeamNames = [
-  "LEV", "Meta Knight", "Nightfury", "GuardianBots", "Rust*eze", "Asparagus", 
-  "Locked", "LAAL", "SKY", "The Wingho Riders", "ACCI 1", "ACCI 2", 
-  "Jetson - Red", "JAYL", "Jetson - Green", "Jetson - Yellow", "Jetson - Blue", 
-  "Central Tech ICT", "RobotsGoBrrr", "Chris Hadfield", "Group 1", "Northern Alpha", 
-  "Group 2", "Decepticepticons", "The wild Apes", "Kraftarm", "Tech Gurus", 
-  "Northern Gamma", "Northern Beta", "Satec", "Team Finality", "ACCI solo"
-];
+const defaultTeamNames = ["Haig Robotics A", "Haig Robotics B", "Moody Robot", "Savage", "Cooked Cornball", "Little Jeremy", "Good Bot", "Devious Birds", "Hatchlings", "SATEC 1", "W.A.rriors", "3 Musketeers", "The Bethlings", "Chorgirand the sesame seed", "Hamer", "TigerBots", "YM Zipties"]
 
 async function seed(customNames?: string[]) {
   const teamNames = customNames && customNames.length > 0 ? customNames : defaultTeamNames;
@@ -195,6 +188,46 @@ function generateBracket(insertedTeams: { id: number }[]) {
         // Even LB Round (indexed 1, 3, ...) -> half the number of matches in next LB round
         const nextLBIdx = Math.floor(m / 2);
         match.nextMatchId = nextRound[nextLBIdx]?.id ?? null;
+      }
+    }
+  }
+
+  // --- CULL BYES ---
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (let i = 0; i < matches.length; i++) {
+      const m = matches[i]!;
+      
+      // A match can be culled if it's a bye (exactly 1 team) or empty (0 teams)
+      // AND no other active matches are feeding into it.
+      const isWaiting = matches.some(other => 
+        other.nextMatchId === m.id || other.nextLooserMatchId === m.id
+      );
+
+      if (!isWaiting) {
+        const teamCount = (m.team1Id !== null ? 1 : 0) + (m.team2Id !== null ? 1 : 0);
+        
+        // If it's a bye or empty, we can cull it
+        if (teamCount <= 1) {
+          const teamId = m.team1Id ?? m.team2Id;
+          
+          // If there's a team, advance it to the next match
+          if (teamId && m.nextMatchId) {
+            const nextM = matches.find(nm => nm.id === m.nextMatchId);
+            if (nextM) {
+              if (nextM.team1Id === null) {
+                nextM.team1Id = teamId;
+              } else if (nextM.team2Id === null) {
+                nextM.team2Id = teamId;
+              }
+            }
+          }
+          
+          matches.splice(i, 1);
+          changed = true;
+          break; // Start over after modification
+        }
       }
     }
   }
