@@ -4,6 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "~/server/better-auth/client";
 import Link from "next/link";
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "~/components/ui/card";
+import { Badge } from "~/components/ui/badge";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -37,56 +41,71 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-      <div className="w-full max-w-md p-8 rounded-xl bg-white/10 shadow-2xl backdrop-blur-sm">
-        <h1 className="text-3xl font-bold mb-6 text-center">Admin Login</h1>
+    <main className="flex min-h-screen flex-col items-center justify-center bg-black text-white p-4">
+      <Card className="w-full max-w-md border-white/20 bg-black rounded-none">
+        <CardHeader className="space-y-1">
+          <div className="flex justify-center mb-4">
+            <div className="w-16 h-16 border-2 border-white flex items-center justify-center text-2xl font-black">
+              C
+            </div>
+          </div>
+          <CardTitle className="text-2xl font-black uppercase tracking-tighter text-center">Admin Access</CardTitle>
+          <CardDescription className="text-white/40 uppercase text-[10px] tracking-[0.3em] text-center">
+            Tournament Management Portal
+          </CardDescription>
+        </CardHeader>
         
-        {error && (
-          <div className="mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded text-red-200 text-sm">
-            {error}
-          </div>
-        )}
+        <CardContent>
+          {error && (
+            <Badge variant="destructive" className="w-full justify-center mb-6 rounded-none py-2 text-[10px] font-bold uppercase tracking-widest border-none">
+              {error}
+            </Badge>
+          )}
 
-        <form onSubmit={handleLogin} className="flex flex-col gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 rounded bg-black/20 border border-white/10 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition text-white placeholder-white/30"
-              placeholder="admin@ceta.com"
-              required
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium mb-1">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 rounded bg-black/20 border border-white/10 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition text-white placeholder-white/30"
-              placeholder="••••••••"
-              required
-            />
-          </div>
+          <form onSubmit={handleLogin} className="flex flex-col gap-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-white/60">Email</label>
+              <Input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="rounded-none border-white/10 bg-white/5 focus-visible:ring-0 focus-visible:border-white transition-colors"
+                placeholder="admin@ceta.com"
+                required
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-white/60">Password</label>
+              <Input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="rounded-none border-white/10 bg-white/5 focus-visible:ring-0 focus-visible:border-white transition-colors"
+                placeholder="••••••••"
+                required
+              />
+            </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full mt-4 rounded-full bg-[hsl(280,100%,70%)] px-4 py-3 font-semibold text-white transition hover:bg-[hsl(280,100%,65%)] disabled:opacity-50"
-          >
-            {loading ? "Signing in..." : "Sign In"}
-          </button>
-        </form>
+            <Button
+              type="submit"
+              disabled={loading}
+              variant="outline"
+              className="w-full h-12 mt-4 rounded-none border-white font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all"
+            >
+              {loading ? "Verifying..." : "Sign In"}
+            </Button>
+          </form>
+        </CardContent>
         
-        <div className="mt-6 text-center">
-          <Link href="/" className="text-sm text-white/50 hover:text-white transition">
-            &larr; Back to Home
-          </Link>
-        </div>
-      </div>
+        <CardFooter className="flex justify-center border-t border-white/10 mt-6 pt-6">
+          <Button asChild variant="link" className="text-[10px] font-bold uppercase tracking-widest text-white/40 hover:text-white transition-colors p-0 h-auto">
+            <Link href="/">
+              &larr; Terminate Terminal
+            </Link>
+          </Button>
+        </CardFooter>
+      </Card>
     </main>
   );
 }

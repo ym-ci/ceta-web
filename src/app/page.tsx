@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { auth } from "~/server/better-auth";
 import { getSession } from "~/server/better-auth/server";
 import { HydrateClient } from "~/trpc/server";
+import { Button } from "~/components/ui/button";
 
 export default async function Home() {
   const session = await getSession();
@@ -23,12 +24,15 @@ export default async function Home() {
           </div>
           
           <div className="flex flex-col items-center gap-8">
-            <Link
-              href="/bracket"
-              className="border-2 border-white px-12 py-4 font-black text-2xl uppercase tracking-[0.2em] transition-all hover:bg-white hover:text-black"
+            <Button
+              asChild
+              variant="outline"
+              className="h-auto border-2 border-white px-12 py-4 text-2xl font-black uppercase tracking-[0.2em] hover:bg-white hover:text-black"
             >
-              Enter Tournament
-            </Link>
+              <Link href="/bracket">
+                Enter Tournament
+              </Link>
+            </Button>
           </div>
 
           <div className="flex flex-col items-center gap-6 mt-20">
@@ -38,14 +42,23 @@ export default async function Home() {
               </p>
               {!session ? (
                 <div className="flex gap-4">
-                  <Link href="/login" className="text-[10px] font-bold uppercase tracking-widest border border-white/20 px-6 py-2 hover:border-white transition-colors">
-                    Admin Portal
-                  </Link>
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="sm"
+                    className="border-white/20 text-[10px] font-bold uppercase tracking-widest hover:border-white"
+                  >
+                    <Link href="/login">
+                      Admin Portal
+                    </Link>
+                  </Button>
                 </div>
               ) : (
                 <form>
-                  <button
-                    className="text-[10px] font-bold uppercase tracking-widest border border-white/20 px-6 py-2 hover:bg-white hover:text-black transition-all"
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-white/20 text-[10px] font-bold uppercase tracking-widest hover:bg-white hover:text-black"
                     formAction={async () => {
                       "use server";
                       await auth.api.signOut({
@@ -55,7 +68,7 @@ export default async function Home() {
                     }}
                   >
                     Terminate Session
-                  </button>
+                  </Button>
                 </form>
               )}
             </div>

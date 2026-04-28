@@ -2,6 +2,10 @@
 
 import React from "react";
 import { type RouterOutputs } from "~/trpc/react";
+import { Card, CardContent } from "~/components/ui/card";
+import { Badge } from "~/components/ui/badge";
+import { Separator } from "~/components/ui/separator";
+import { cn } from "~/lib/utils";
 
 type Match = RouterOutputs["bracket"]["getAllMatches"][number];
 
@@ -23,10 +27,8 @@ export function CustomBracket({ matches, isAdmin, onMatchClick }: CustomBracketP
       rounds[m.tournamentRoundText] ??= [];
       rounds[m.tournamentRoundText]!.push(m);
     });
-    // Sort rounds - this might need more logic if names aren't simple
-    // For now we'll rely on the order they appear or a predefined order
+    // Sort rounds
     return Object.entries(rounds).sort((a, b) => {
-        // Simple heuristic for sorting rounds
         const order = ["W-R1", "W-R2", "W-R3", "W-Final", "L-R1", "L-R2", "L-R3", "L-Final"];
         return order.indexOf(a[0]) - order.indexOf(b[0]);
     });
@@ -40,7 +42,7 @@ export function CustomBracket({ matches, isAdmin, onMatchClick }: CustomBracketP
       {/* Winners Bracket */}
       <section className="relative">
         <div className="sticky left-0 z-10 mb-8 flex items-center gap-3 bg-black/80 backdrop-blur-sm py-2">
-          <div className="w-1.5 h-8 bg-white rounded-none"></div>
+          <Separator orientation="vertical" className="h-8 w-1 bg-white" />
           <div>
             <h2 className="text-2xl font-bold tracking-tighter text-white uppercase">Winners Bracket</h2>
             <p className="text-[10px] text-white/30 uppercase tracking-[0.5em]">Championship Path</p>
@@ -70,7 +72,7 @@ export function CustomBracket({ matches, isAdmin, onMatchClick }: CustomBracketP
       {/* Losers Bracket */}
       <section className="relative">
         <div className="sticky left-0 z-10 mb-8 flex items-center gap-3 bg-black/80 backdrop-blur-sm py-2">
-          <div className="w-1.5 h-8 bg-white/40 rounded-none"></div>
+          <Separator orientation="vertical" className="h-8 w-1 bg-white/40" />
           <div>
             <h2 className="text-2xl font-bold tracking-tighter text-white uppercase">Losers Bracket</h2>
             <p className="text-[10px] text-white/30 uppercase tracking-[0.5em]">Redemption Path</p>
@@ -104,82 +106,82 @@ function MatchCard({ match, isAdmin, onClick }: { match: Match; isAdmin: boolean
   const isDone = match.state === "DONE";
   
   return (
-    <div 
-      className={`
-        group relative flex flex-col w-full rounded-none overflow-hidden border transition-all duration-200
-        ${isAdmin ? "cursor-pointer hover:border-white" : "border-white/10"}
-        ${isDone ? "bg-white/5" : "bg-transparent"}
-      `}
+    <Card 
+      className={cn(
+        "group relative flex flex-col w-full rounded-none overflow-hidden border-white/10 bg-transparent transition-all duration-200",
+        isAdmin && "cursor-pointer hover:border-white/40 hover:bg-white/5",
+        isDone && "bg-white/5 border-white/20"
+      )}
       onClick={onClick}
     >
-      {/* Match ID Badge */}
-      <div className="absolute top-0 right-0 px-2 py-0.5 text-[10px] font-mono text-white/30 bg-white/5 rounded-bl-lg">
-        #{match.id}
+      <div className="absolute top-0 right-0 z-10">
+        <Badge variant="outline" className="rounded-none border-none bg-white/5 text-[9px] font-mono text-white/30 px-1.5 py-0.5">
+          #{match.id}
+        </Badge>
       </div>
 
-      {/* Team 1 */}
-      <div className={`
-        flex items-center justify-between p-3 border-b border-white/10
-        ${match.winnerId === match.team1Id && match.winnerId ? "bg-white text-black" : "text-white/60"}
-      `}>
-        <div className="flex items-center gap-3">
-          <span className={`text-xs font-bold uppercase tracking-wider`}>
+      <CardContent className="p-0">
+        {/* Team 1 */}
+        <div className={cn(
+          "flex items-center justify-between p-3 border-b border-white/10 transition-colors",
+          match.winnerId === match.team1Id && match.winnerId ? "bg-white text-black" : "text-white/60"
+        )}>
+          <span className="text-xs font-bold uppercase tracking-wider truncate mr-2">
             {match.team1?.name ?? "TBD"}
           </span>
+          {match.winnerId === match.team1Id && match.winnerId && (
+            <Badge className="bg-black text-white text-[8px] font-black rounded-none px-1 h-3.5 border-none">WINNER</Badge>
+          )}
         </div>
-        {match.winnerId === match.team1Id && match.winnerId && (
-          <span className="text-[9px] font-black uppercase">WINNER</span>
-        )}
-      </div>
 
-      {/* Team 2 */}
-      <div className={`
-        flex items-center justify-between p-3
-        ${match.winnerId === match.team2Id && match.winnerId ? "bg-white text-black" : "text-white/60"}
-      `}>
-        <div className="flex items-center gap-3">
-          <span className={`text-xs font-bold uppercase tracking-wider`}>
+        {/* Team 2 */}
+        <div className={cn(
+          "flex items-center justify-between p-3 transition-colors",
+          match.winnerId === match.team2Id && match.winnerId ? "bg-white text-black" : "text-white/60"
+        )}>
+          <span className="text-xs font-bold uppercase tracking-wider truncate mr-2">
             {match.team2?.name ?? "TBD"}
           </span>
+          {match.winnerId === match.team2Id && match.winnerId && (
+            <Badge className="bg-black text-white text-[8px] font-black rounded-none px-1 h-3.5 border-none">WINNER</Badge>
+          )}
         </div>
-        {match.winnerId === match.team2Id && match.winnerId && (
-          <span className="text-[9px] font-black uppercase">WINNER</span>
+
+        {/* Result Badges for Finals */}
+        {(match.tournamentRoundText === "W-Final" || match.tournamentRoundText === "L-Final") && isDone && (
+          <div className="bg-white px-2 py-1.5 flex flex-col gap-1 border-t border-black/10">
+            {match.tournamentRoundText === "W-Final" && (
+              <p className="text-[9px] font-black text-black uppercase tracking-[0.1em] text-center">
+                1ST: {match.winner?.name}
+              </p>
+            )}
+            {match.tournamentRoundText === "L-Final" && (
+              <div className="flex justify-around items-center">
+                <div className="text-center">
+                  <p className="text-[6px] text-black/40 uppercase font-black leading-none">2nd</p>
+                  <p className="text-[8px] font-black text-black uppercase leading-tight">{match.winner?.name}</p>
+                </div>
+                <Separator orientation="vertical" className="h-4 bg-black/10" />
+                <div className="text-center">
+                  <p className="text-[6px] text-black/40 uppercase font-black leading-none">3rd</p>
+                  <p className="text-[8px] font-black text-black uppercase leading-tight">
+                    {match.winnerId === match.team1Id ? match.team2?.name : match.team1?.name}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
         )}
-      </div>
-
-      {/* Result Badges for Finals */}
-      {match.tournamentRoundText === "W-Final" && isDone && (
-        <div className="bg-white p-2 text-center border-t border-black">
-          <span className="text-[9px] font-black text-black uppercase tracking-[0.2em]">
-             1st Place: {match.winner?.name}
-          </span>
-        </div>
-      )}
-
-      {match.tournamentRoundText === "L-Final" && isDone && (
-        <div className="bg-white p-2 flex justify-around border-t border-black">
-          <div className="text-center">
-            <p className="text-[7px] text-black/60 uppercase font-bold">2nd Place</p>
-            <p className="text-[9px] font-black text-black uppercase">{match.winner?.name}</p>
-          </div>
-          <div className="w-px h-4 bg-black/20 self-center"></div>
-          <div className="text-center">
-            <p className="text-[7px] text-black/60 uppercase font-bold">3rd Place</p>
-            <p className="text-[9px] font-black text-black uppercase">
-              {match.winnerId === match.team1Id ? match.team2?.name : match.team1?.name}
-            </p>
-          </div>
-        </div>
-      )}
+      </CardContent>
 
       {/* Hover Overlay for Admin */}
       {isAdmin && !isDone && (
         <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-colors pointer-events-none flex items-center justify-center">
-          <span className="opacity-0 group-hover:opacity-100 text-[9px] font-bold uppercase tracking-[0.2em] text-white">
+          <Badge variant="outline" className="opacity-0 group-hover:opacity-100 rounded-none border-white/40 text-[8px] font-black uppercase tracking-[0.2em] text-white bg-black/50 backdrop-blur-sm">
             Set Result
-          </span>
+          </Badge>
         </div>
       )}
-    </div>
+    </Card>
   );
 }
