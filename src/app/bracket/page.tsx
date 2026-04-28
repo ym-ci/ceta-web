@@ -1,12 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any */
 "use client";
 
-
-import { DoubleEliminationBracket, Match, SVGViewer } from "@g-loot/react-tournament-brackets";
+import React, { useState, useEffect } from "react";
 import { api } from "~/trpc/react";
 import Link from "next/link";
-import { useWindowSize } from "./useWindowSize";
 import { authClient } from "~/server/better-auth/client";
+import { CustomBracket } from "./CustomBracket";
 
 export default function BracketPage() {
   const { data: matches, isLoading, refetch } = api.bracket.getAllMatches.useQuery();
@@ -14,13 +12,15 @@ export default function BracketPage() {
     onSuccess: () => refetch(),
   });
   
-  const [windowWidth, windowHeight] = useWindowSize();
   const { data: sessionData } = authClient.useSession();
   const isAdmin = !!sessionData?.session;
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-
-  if (isLoading) {
+  if (isLoading || !mounted) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#15162c] text-white">
         <div className="text-2xl font-bold animate-pulse">Loading Bracket...</div>
@@ -38,80 +38,13 @@ export default function BracketPage() {
     );
   }
 
-  // Transform matches
-  const transformedMatches = matches.map((match) => {
-    const participants = [];
-    
-    // Team 1
-    if (match.team1Id) {
-      participants.push({
-        id: match.team1?.id?.toString() ?? `t1-${match.id}`,
-        resultText: match.winnerId === match.team1Id ? "WIN" : match.winnerId ? "LOSS" : "",
-        isWinner: match.winnerId === match.team1Id,
-        status: match.state === "DONE" ? "PLAYED" : null,
-        name: match.team1?.name ?? "TBD",
-      });
-    } else {
-      participants.push({
-        id: `tbd1-${match.id}`,
-        resultText: "",
-        isWinner: false,
-        status: null,
-        name: "TBD",
-      });
-    }
-
-    // Team 2
-    if (match.team2Id) {
-      participants.push({
-        id: match.team2?.id?.toString() ?? `t2-${match.id}`,
-        resultText: match.winnerId === match.team2Id ? "WIN" : match.winnerId ? "LOSS" : "",
-        isWinner: match.winnerId === match.team2Id,
-        status: match.state === "DONE" ? "PLAYED" : null,
-        name: match.team2?.name ?? "TBD",
-      });
-    } else {
-      participants.push({
-        id: `tbd2-${match.id}`,
-        resultText: "",
-        isWinner: false,
-        status: null,
-        name: "TBD",
-      });
-    }
-
-    return {
-      id: match.id,
-      name: `Match ${match.id}`,
-      nextMatchId: match.nextMatchId,
-      nextLooserMatchId: match.nextLooserMatchId,
-      tournamentRoundText: match.tournamentRoundText,
-      startTime: "",
-      state: match.winnerId ? "DONE" : "SCHEDULED",
-      participants,
-    };
-  });
-
-  interface MatchData {
-    id: number;
-    participants: {
-      id: string;
-      resultText: string;
-      isWinner: boolean;
-      status: string | null;
-      name: string;
-    }[];
-  }
-
-  const handleMatchClick = (match: MatchData) => {
+  const handleMatchClick = (match: any) => {
     if (!isAdmin) return; // Only admins can interact
     
-    // Simple logic to advance a team
-    // In a real app, you'd show a modal to select the winner and enter score
-    const p1 = match.participants[0];
-    const p2 = match.participants[1];
+    const p1 = match.team1;
+    const p2 = match.team2;
     
-    if (!p1 || !p2 || p1.name === "TBD" || p2.name === "TBD") {
+    if (!p1 || !p2) {
       alert("Cannot complete match: Both teams must be determined first.");
       return;
     }
@@ -120,50 +53,76 @@ export default function BracketPage() {
     if (winnerName === "1") {
       updateMatchMutation.mutate({
         matchId: match.id,
-        winnerId: parseInt(p1.id),
+        winnerId: p1.id,
         state: "DONE",
       });
     } else if (winnerName === "2") {
       updateMatchMutation.mutate({
         matchId: match.id,
-        winnerId: parseInt(p2.id),
+        winnerId: p2.id,
         state: "DONE",
       });
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#15162c] text-white">
-      <div className="p-4 bg-black/30 border-b border-white/10 flex justify-between items-center z-10 relative">
-        <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#e0c3fc] to-[#8ec5fc]">
-          CETA Robotics Tournament
-        </h1>
+    <div className="min-h-screen bg-[#0f111a] text-white overflow-hidden flex flex-col">
+      <header className="p-4 bg-black/40 backdrop-blur-md border-b border-white/5 flex justify-between items-center z-20">
         <div className="flex items-center gap-4">
-          {isAdmin && (
-            <span className="px-3 py-1 rounded bg-green-500/20 text-green-300 text-sm font-semibold border border-green-500/30">
-              Admin Mode Enabled
-            </span>
-          )}
-          <Link href="/" className="text-sm hover:text-[hsl(280,100%,70%)] transition">
-            Home
+          <Link href="/" className="group">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-xl font-black group-hover:scale-110 transition-transform">
+              C
+            </div>
           </Link>
+          <div>
+            <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">
+              Tournament Bracket
+            </h1>
+            <p className="text-[10px] text-white/40 uppercase tracking-[0.2em]">CETA Robotics 2026</p>
+          </div>
         </div>
-      </div>
-      
-      <div className="p-8 w-full h-[calc(100vh-80px)] overflow-hidden">
-        {isAdmin && <p className="text-white/50 text-sm mb-4">Click on any scheduled match to advance a winner.</p>}
         
-        <DoubleEliminationBracket
-          matches={transformedMatches}
-          matchComponent={Match}
-          svgWrapper={({ children, ...props }: any) => (
-            <SVGViewer width={windowWidth} height={windowHeight} {...props}>
-              {children}
-            </SVGViewer>
+        <div className="flex items-center gap-6">
+          {isAdmin && (
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/20">
+              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+              <span className="text-xs font-bold text-green-400 uppercase tracking-wider">
+                Admin
+              </span>
+            </div>
           )}
-          onMatchClick={handleMatchClick}
-        />
-      </div>
+          <nav className="flex items-center gap-4">
+            <Link href="/" className="text-sm font-medium text-white/60 hover:text-white transition-colors">
+              Home
+            </Link>
+          </nav>
+        </div>
+      </header>
+      
+      <main className="flex-1 relative overflow-hidden">
+        {/* Background decorative elements */}
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
+          <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-blue-600/10 blur-[120px] rounded-full"></div>
+          <div className="absolute -bottom-[20%] -right-[10%] w-[50%] h-[50%] bg-purple-600/10 blur-[120px] rounded-full"></div>
+        </div>
+
+        <div className="relative z-10 h-full">
+          <CustomBracket 
+            matches={matches} 
+            isAdmin={isAdmin} 
+            onMatchClick={handleMatchClick} 
+          />
+        </div>
+      </main>
+
+      {isAdmin && (
+        <footer className="p-3 bg-blue-600/10 border-t border-blue-500/20 text-center">
+          <p className="text-xs font-medium text-blue-300/80">
+            Click on any match to record the outcome and advance teams
+          </p>
+        </footer>
+      )}
     </div>
   );
 }
+
