@@ -265,7 +265,7 @@ function generateBracket(insertedTeams: { id: number }[]) {
     
     if (sortA !== sortB) return sortA - sortB;
     // Within the same round, preserve the original creation order
-    return (a.id as number) - (b.id as number);
+    return a.id - b.id;
   });
 
   // --- RE-INDEX MATCHES ---
@@ -275,7 +275,7 @@ function generateBracket(insertedTeams: { id: number }[]) {
   
   // First pass: Assign new IDs and build the map
   matches.forEach((m, index) => {
-    const oldId = m.id as number;
+    const oldId = m.id;
     const newId = index + 1;
     idMap.set(oldId, newId);
     
@@ -288,10 +288,10 @@ function generateBracket(insertedTeams: { id: number }[]) {
   // Second pass: Update nextMatchId and nextLooserMatchId references
   finalMatches.forEach(m => {
     if (m.nextMatchId !== null && m.nextMatchId !== undefined) {
-      m.nextMatchId = idMap.get(m.nextMatchId as number) ?? null;
+      m.nextMatchId = idMap.get(m.nextMatchId) ?? null;
     }
     if (m.nextLooserMatchId !== null && m.nextLooserMatchId !== undefined) {
-      m.nextLooserMatchId = idMap.get(m.nextLooserMatchId as number) ?? null;
+      m.nextLooserMatchId = idMap.get(m.nextLooserMatchId) ?? null;
     }
   });
 
