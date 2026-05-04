@@ -10,6 +10,7 @@ interface SvgBracketProps {
   matches: Match[];
   isAdmin: boolean;
   onMatchClick: (match: Match) => void;
+  minimal?: boolean;
 }
 
 const COL_WIDTH = 350;
@@ -18,7 +19,7 @@ const MATCH_HEIGHT = 90;
 const VERTICAL_GAP = 60;
 const PADDING = 100;
 
-export function SvgBracket({ matches, isAdmin, onMatchClick }: SvgBracketProps) {
+export function SvgBracket({ matches, isAdmin, onMatchClick, minimal }: SvgBracketProps) {
   const layout = useMemo(() => {
     const positions: Record<number, { x: number; y: number }> = {};
     // 1. Determine k (bracket depth)
@@ -118,7 +119,10 @@ export function SvgBracket({ matches, isAdmin, onMatchClick }: SvgBracketProps) 
   const height = (matches.length / 2) * (MATCH_HEIGHT + VERTICAL_GAP) * 2 + PADDING * 2;
 
   return (
-    <div className="w-full h-full overflow-auto bg-background/50 backdrop-blur-sm rounded-3xl border border-border/50 shadow-2xl relative">
+    <div className={cn(
+        "w-full h-full overflow-auto relative",
+        !minimal && "bg-background/50 backdrop-blur-sm rounded-3xl border border-border/50 shadow-2xl"
+    )}>
       <svg
         width={width}
         height={height}
