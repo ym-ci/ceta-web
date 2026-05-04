@@ -11,6 +11,7 @@ interface SvgBracketProps {
   isAdmin: boolean;
   onMatchClick: (match: Match) => void;
   minimal?: boolean;
+  bracketType?: "upper" | "lower" | "all";
 }
 
 const COL_WIDTH = 190;
@@ -19,10 +20,11 @@ const MATCH_HEIGHT = 50;
 const VERTICAL_GAP = 0;
 const PADDING = 50;
 
-export function SvgBracket({ matches, isAdmin, onMatchClick, minimal }: SvgBracketProps) {
+export function SvgBracket({ matches, isAdmin, onMatchClick, minimal, bracketType = "all" }: SvgBracketProps) {
   const layout = useMemo(() => {
     const positions: Record<number, { x: number; y: number }> = {};
-    // 1. Determine k (bracket depth)
+    
+    // 1. Determine k (bracket depth) from ALL matches to keep round scaling consistent
     let k = 1;
     matches.forEach(m => {
         if (!m.isLoserBracket) {
@@ -30,6 +32,13 @@ export function SvgBracket({ matches, isAdmin, onMatchClick, minimal }: SvgBrack
             const rMatch = /W-R(\d+)/.exec(m.tournamentRoundText);
             if (rMatch) k = Math.max(rMatch[1] ? parseInt(rMatch[1]) + 1 : k, k);
         }
+    });
+
+    // Filter matches for the specific view
+    const displayMatches = matches.filter(m => {
+        if (bracketType === "upper") return !m.isLoserBracket;
+        if (bracketType === "lower") return m.isLoserBracket;
+        return true;
     });
 
     const matchRanges: Record<number, [number, number]> = {};
@@ -87,9 +96,9 @@ export function SvgBracket({ matches, isAdmin, onMatchClick, minimal }: SvgBrack
 
     const wbHeight = Math.pow(2, k - 1) * (MATCH_HEIGHT + VERTICAL_GAP);
     const lbHeight = Math.pow(2, k - 2) * (MATCH_HEIGHT + VERTICAL_GAP);
-    const lbOffset = wbHeight + 40;
+    const lbOffset = bracketType === "lower" ? 0 : wbHeight + 40;
 
-    matches.forEach(m => {
+    displayMatches.forEach(m => {
         const range = matchRanges[m.id];
         if (range) {
             const mid = (range[0] + range[1]) / 2;
@@ -123,10 +132,13 @@ export function SvgBracket({ matches, isAdmin, onMatchClick, minimal }: SvgBrack
     const maxPosX = Object.values(positions).reduce((max, p) => Math.max(max, p.x), 0);
     const maxPosY = Object.values(positions).reduce((max, p) => Math.max(max, p.y), 0);
 
-    return { positions, k, maxPosX, maxPosY };
-  }, [matches]);
+    const activeMatches = displayMatches.filter(m => m.state !== "DONE" && m.team1Id && m.team2Id);
+    const lowestActiveId = activeMatches.length > 0 ? Math.min(...activeMatches.map(m => m.id)) : null;
 
-  const { positions, k, maxPosX, maxPosY } = layout;
+    return { positions, k, maxPosX, maxPosY, lowestActiveId, displayMatches };
+  }, [matches, bracketType]);
+
+  const { positions, k, maxPosX, maxPosY, lowestActiveId, displayMatches } = layout;
 
   // Calculate SVG bounds based on actual content
   const width = maxPosX + MATCH_WIDTH + PADDING;
@@ -134,14 +146,14 @@ export function SvgBracket({ matches, isAdmin, onMatchClick, minimal }: SvgBrack
 
   return (
     <div className={cn(
-        "w-full h-full overflow-auto relative",
+        "w-full h-full overflow-auto relative flex",
         !minimal && "bg-background/50 backdrop-blur-sm rounded-3xl border border-border/50 shadow-2xl"
     )}>
       <svg
         width={width}
         height={height}
         viewBox={`0 0 ${width} ${height}`}
-        className="touch-none select-none"
+        className="touch-none select-none m-auto"
       >
         <defs>
           <linearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -158,7 +170,7 @@ export function SvgBracket({ matches, isAdmin, onMatchClick, minimal }: SvgBrack
         </defs>
 
         {/* Connectors */}
-        {matches.map((m) => {
+        {displayMatches.map((m) => {
           const start = positions[m.id];
           if (!start) return null;
 
@@ -195,11 +207,12 @@ export function SvgBracket({ matches, isAdmin, onMatchClick, minimal }: SvgBrack
         })}
 
         {/* Matches */}
-        {matches.map((m) => {
+        {displayMatches.map((m) => {
           const pos = positions[m.id];
           if (!pos) return null;
 
           const isDone = m.state === "DONE";
+          const isActive = m.id === lowestActiveId;
 
           return (
             <g
@@ -210,82 +223,109 @@ export function SvgBracket({ matches, isAdmin, onMatchClick, minimal }: SvgBrack
                 !isAdmin && "pointer-events-none"
               )}
               onClick={() => onMatchClick(m)}
-              clipPath="url(#matchClip)"
             >
-              {/* Card Background */}
-              <rect
-                width={MATCH_WIDTH}
-                height={MATCH_HEIGHT}
-                rx="12"
-                fill="var(--card)"
-                stroke={isDone ? "var(--primary)" : "var(--border)"}
-                strokeWidth={isDone ? "2" : "1"}
-                className="transition-all shadow-sm group-hover:shadow-md"
-              />
-
-              {/* Match Header (ID) */}
-              <text
-                x={MATCH_WIDTH - 6}
-                y={12}
-                textAnchor="end"
-                className="text-[8px] font-bold fill-muted-foreground opacity-30 uppercase tracking-widest"
-              >
-                #{m.id}
-              </text>
-              <text
-                x={6}
-                y={12}
-                className="text-[8px] font-black fill-muted-foreground uppercase tracking-tighter"
-              >
-                {m.tournamentRoundText}
-              </text>
-
-              {/* Team 1 Row */}
-              <g transform="translate(0, 15)">
+              {/* Glow for Active Match */}
+              {isActive && (
+                <>
+                  <rect
+                    width={MATCH_WIDTH}
+                    height={MATCH_HEIGHT}
+                    rx="12"
+                    fill="var(--primary)"
+                    className="animate-pulse opacity-15 filter blur-xl"
+                    transform="scale(1.2)"
+                    x={-MATCH_WIDTH * 0.1}
+                    y={-MATCH_HEIGHT * 0.1}
+                  />
+                  <rect
+                    width={MATCH_WIDTH}
+                    height={MATCH_HEIGHT}
+                    rx="12"
+                    fill="var(--primary)"
+                    className="animate-pulse opacity-25 filter blur-md"
+                    transform="scale(1.08)"
+                    x={-MATCH_WIDTH * 0.04}
+                    y={-MATCH_HEIGHT * 0.04}
+                  />
+                </>
+              )}
+              
+              <g clipPath="url(#matchClip)">
+                {/* Card Background */}
                 <rect
                   width={MATCH_WIDTH}
-                  height={17}
-                  fill={m.winnerId === m.team1Id && m.winnerId ? "var(--primary)" : "transparent"}
-                  className="transition-colors"
+                  height={MATCH_HEIGHT}
+                  rx="12"
+                  fill="var(--card)"
+                  // stroke={isActive ? "var(--primary)" : isDone ? "var(--primary)" : "var(--border)"}
+                  strokeWidth={isActive || isDone ? "2" : "1"}
+                  className="transition-all shadow-sm group-hover:shadow-md"
                 />
-                <rect width={3} height={17} fill="oklch(0.645 0.246 16.439)" />
-                <text
-                  x={10}
-                  y={12}
-                  className={cn(
-                    "text-[10px] font-bold tracking-tight uppercase",
-                    m.winnerId === m.team1Id && m.winnerId ? "fill-primary-foreground" : "fill-foreground",
-                    m.winnerId && m.winnerId !== m.team1Id && "opacity-30"
-                  )}
-                >
-                  {m.team1?.name ?? "TBD"}
-                </text>
-              </g>
 
-              {/* Team 2 Row */}
-              <g transform="translate(0, 32)">
-                <rect
-                  width={MATCH_WIDTH}
-                  height={17}
-                  fill={m.winnerId === m.team2Id && m.winnerId ? "var(--primary)" : "transparent"}
-                  className="transition-colors"
-                />
-                <rect width={3} height={17} fill="oklch(0.588 0.158 241.966)" />
+                {/* Match Header (ID) */}
                 <text
-                  x={10}
+                  x={MATCH_WIDTH - 6}
                   y={12}
-                  className={cn(
-                    "text-[10px] font-bold tracking-tight uppercase",
-                    m.winnerId === m.team2Id && m.winnerId ? "fill-primary-foreground" : "fill-foreground",
-                    m.winnerId && m.winnerId !== m.team2Id && "opacity-30"
-                  )}
+                  textAnchor="end"
+                  className="text-[8px] font-bold fill-muted-foreground opacity-30 uppercase tracking-widest"
                 >
-                  {m.team2?.name ?? "TBD"}
+                  #{m.id}
                 </text>
+                <text
+                  x={6}
+                  y={12}
+                  className="text-[8px] font-black fill-muted-foreground uppercase tracking-tighter"
+                >
+                  {m.tournamentRoundText}
+                </text>
+
+                {/* Team 1 Row */}
+                <g transform="translate(0, 15)">
+                  <rect
+                    width={MATCH_WIDTH}
+                    height={17}
+                    fill={m.winnerId === m.team1Id && m.winnerId ? "var(--primary)" : "transparent"}
+                    className="transition-colors"
+                  />
+                  <rect width={3} height={17} fill="oklch(0.645 0.246 16.439)" />
+                  <text
+                    x={10}
+                    y={12}
+                    className={cn(
+                      "text-[10px] font-bold tracking-tight uppercase",
+                      m.winnerId === m.team1Id && m.winnerId ? "fill-primary-foreground" : "fill-foreground",
+                      m.winnerId && m.winnerId !== m.team1Id && "opacity-30"
+                    )}
+                  >
+                    {m.team1?.name ?? "TBD"}
+                  </text>
+                </g>
+
+                {/* Team 2 Row */}
+                <g transform="translate(0, 32)">
+                  <rect
+                    width={MATCH_WIDTH}
+                    height={17}
+                    fill={m.winnerId === m.team2Id && m.winnerId ? "var(--primary)" : "transparent"}
+                    className="transition-colors"
+                  />
+                  <rect width={3} height={17} fill="oklch(0.588 0.158 241.966)" />
+                  <text
+                    x={10}
+                    y={12}
+                    className={cn(
+                      "text-[10px] font-bold tracking-tight uppercase",
+                      m.winnerId === m.team2Id && m.winnerId ? "fill-primary-foreground" : "fill-foreground",
+                      m.winnerId && m.winnerId !== m.team2Id && "opacity-30"
+                    )}
+                  >
+                    {m.team2?.name ?? "TBD"}
+                  </text>
+                </g>
               </g>
 
               {/* Series Status */}
-              {isDone && (
+              {/* {isDone ? (
                 <text
                   x={MATCH_WIDTH / 2}
                   y={MATCH_HEIGHT + 8}
@@ -294,7 +334,25 @@ export function SvgBracket({ matches, isAdmin, onMatchClick, minimal }: SvgBrack
                 >
                   DONE
                 </text>
-              )}
+              ) : m.team1Id && m.team2Id ? (
+                <g transform={`translate(${MATCH_WIDTH / 2}, ${MATCH_HEIGHT + 8})`}>
+                   <rect
+                     x="-30"
+                     y="-6"
+                     width="60"
+                     height="12"
+                     rx="6"
+                     fill="var(--primary)"
+                     className="animate-pulse opacity-20"
+                   />
+                   <text
+                    textAnchor="middle"
+                    className="text-[6px] font-black fill-primary uppercase tracking-[0.1em]"
+                  >
+                    CURRENT MATCH
+                  </text>
+                </g>
+              ) : null} */}
             </g>
           );
         })}

@@ -20,6 +20,7 @@ const geist = Geist({
 });
 
 import { ThemeProvider } from "~/components/theme-provider";
+import { ThemeParamHandler } from "~/components/theme-param-handler";
 
 export default function RootLayout({
   children,
@@ -33,6 +34,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <ThemeParamHandler />
           <TRPCReactProvider>{children}</TRPCReactProvider>
         </ThemeProvider>
       </body>
