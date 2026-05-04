@@ -23,22 +23,22 @@ const PADDING = 50;
 export function SvgBracket({ matches, isAdmin, onMatchClick, minimal, bracketType = "all" }: SvgBracketProps) {
   const layout = useMemo(() => {
     const positions: Record<number, { x: number; y: number }> = {};
-    
+
     // 1. Determine k (bracket depth) from ALL matches to keep round scaling consistent
     let k = 1;
     matches.forEach(m => {
-        if (!m.isLoserBracket) {
-            if (m.tournamentRoundText === "W-Final") k = Math.max(k, 1);
-            const rMatch = /W-R(\d+)/.exec(m.tournamentRoundText);
-            if (rMatch) k = Math.max(rMatch[1] ? parseInt(rMatch[1]) + 1 : k, k);
-        }
+      if (!m.isLoserBracket) {
+        if (m.tournamentRoundText === "W-Final") k = Math.max(k, 1);
+        const rMatch = /W-R(\d+)/.exec(m.tournamentRoundText);
+        if (rMatch) k = Math.max(rMatch[1] ? parseInt(rMatch[1]) + 1 : k, k);
+      }
     });
 
     // Filter matches for the specific view
     const displayMatches = matches.filter(m => {
-        if (bracketType === "upper") return !m.isLoserBracket;
-        if (bracketType === "lower") return m.isLoserBracket;
-        return true;
+      if (bracketType === "upper") return !m.isLoserBracket;
+      if (bracketType === "lower") return m.isLoserBracket;
+      return true;
     });
 
     const matchRanges: Record<number, [number, number]> = {};
@@ -46,52 +46,52 @@ export function SvgBracket({ matches, isAdmin, onMatchClick, minimal, bracketTyp
     // 2. Assign Ranges for Winners Bracket
     const winnersFinal = matches.find(m => !m.isLoserBracket && m.tournamentRoundText === "W-Final");
     if (winnersFinal) {
-        const assignWbRange = (mId: number, start: number, end: number) => {
-            matchRanges[mId] = [start, end];
-            const feeders = matches
-                .filter(f => f.nextMatchId === mId && !f.isLoserBracket)
-                .sort((a, b) => a.id - b.id);
-            
-            if (feeders.length === 2) {
-                assignWbRange(feeders[0]!.id, start, (start + end) / 2);
-                assignWbRange(feeders[1]!.id, (start + end) / 2, end);
-            } else if (feeders.length === 1) {
-                // If only one feeder (bye), center it
-                assignWbRange(feeders[0]!.id, start, end);
-            }
-        };
-        assignWbRange(winnersFinal.id, 0, 1);
+      const assignWbRange = (mId: number, start: number, end: number) => {
+        matchRanges[mId] = [start, end];
+        const feeders = matches
+          .filter(f => f.nextMatchId === mId && !f.isLoserBracket)
+          .sort((a, b) => a.id - b.id);
+
+        if (feeders.length === 2) {
+          assignWbRange(feeders[0]!.id, start, (start + end) / 2);
+          assignWbRange(feeders[1]!.id, (start + end) / 2, end);
+        } else if (feeders.length === 1) {
+          // If only one feeder (bye), center it
+          assignWbRange(feeders[0]!.id, start, end);
+        }
+      };
+      assignWbRange(winnersFinal.id, 0, 1);
     }
 
     // 3. Assign Ranges for Losers Bracket
     const losersFinal = matches.find(m => m.tournamentRoundText === "L-Final");
     if (losersFinal) {
-        const assignLbRange = (mId: number, start: number, end: number) => {
-            matchRanges[mId] = [start, end];
-            const lbFeeders = matches
-                .filter(f => f.nextMatchId === mId && f.isLoserBracket)
-                .sort((a, b) => a.id - b.id);
-            
-            if (lbFeeders.length === 2) {
-                assignLbRange(lbFeeders[0]!.id, start, (start + end) / 2);
-                assignLbRange(lbFeeders[1]!.id, (start + end) / 2, end);
-            } else if (lbFeeders.length === 1) {
-                assignLbRange(lbFeeders[0]!.id, start, end);
-            }
-        };
-        assignLbRange(losersFinal.id, 0, 1);
+      const assignLbRange = (mId: number, start: number, end: number) => {
+        matchRanges[mId] = [start, end];
+        const lbFeeders = matches
+          .filter(f => f.nextMatchId === mId && f.isLoserBracket)
+          .sort((a, b) => a.id - b.id);
+
+        if (lbFeeders.length === 2) {
+          assignLbRange(lbFeeders[0]!.id, start, (start + end) / 2);
+          assignLbRange(lbFeeders[1]!.id, (start + end) / 2, end);
+        } else if (lbFeeders.length === 1) {
+          assignLbRange(lbFeeders[0]!.id, start, end);
+        }
+      };
+      assignLbRange(losersFinal.id, 0, 1);
     }
 
     const getX = (m: Match) => {
-        const roundText = m.tournamentRoundText;
-        if (!m.isLoserBracket) {
-            const r = roundText === "W-Final" ? k : parseInt(/W-R(\d+)/.exec(roundText)?.[1] ?? "1");
-            const col = r === 1 ? 0 : (r - 1) * 2 - 1;
-            return PADDING + col * COL_WIDTH;
-        } else {
-            const r = roundText === "L-Final" ? 2 * k - 2 : parseInt(/L-R(\d+)/.exec(roundText)?.[1] ?? "1");
-            return PADDING + r * COL_WIDTH;
-        }
+      const roundText = m.tournamentRoundText;
+      if (!m.isLoserBracket) {
+        const r = roundText === "W-Final" ? k : parseInt(/W-R(\d+)/.exec(roundText)?.[1] ?? "1");
+        const col = r === 1 ? 0 : (r - 1) * 2 - 1;
+        return PADDING + col * COL_WIDTH;
+      } else {
+        const r = roundText === "L-Final" ? 2 * k - 2 : parseInt(/L-R(\d+)/.exec(roundText)?.[1] ?? "1");
+        return PADDING + r * COL_WIDTH;
+      }
     };
 
     const wbHeight = Math.pow(2, k - 1) * (MATCH_HEIGHT + VERTICAL_GAP);
@@ -99,40 +99,40 @@ export function SvgBracket({ matches, isAdmin, onMatchClick, minimal, bracketTyp
     const lbOffset = bracketType === "lower" ? 0 : wbHeight + 40;
 
     displayMatches.forEach(m => {
-        const range = matchRanges[m.id];
-        if (range) {
-            const mid = (range[0] + range[1]) / 2;
-            positions[m.id] = {
-                x: getX(m),
-                y: PADDING + mid * (m.isLoserBracket ? lbHeight : wbHeight) + (m.isLoserBracket ? lbOffset : 0)
-            };
-        } else {
-            // Fallback for matches not reachable from Finals (should be rare)
-            const roundMatches = matches.filter(nm => nm.tournamentRoundText === m.tournamentRoundText).sort((a,b) => a.id - b.id);
-            const idx = roundMatches.indexOf(m);
-            positions[m.id] = {
-                x: getX(m),
-                y: (m.isLoserBracket ? lbOffset : PADDING) + idx * (MATCH_HEIGHT + VERTICAL_GAP) * 2
-            };
-        }
+      const range = matchRanges[m.id];
+      if (range) {
+        const mid = (range[0] + range[1]) / 2;
+        positions[m.id] = {
+          x: getX(m),
+          y: PADDING + mid * (m.isLoserBracket ? lbHeight : wbHeight) + (m.isLoserBracket ? lbOffset : 0)
+        };
+      } else {
+        // Fallback for matches not reachable from Finals (should be rare)
+        const roundMatches = matches.filter(nm => nm.tournamentRoundText === m.tournamentRoundText).sort((a, b) => a.id - b.id);
+        const idx = roundMatches.indexOf(m);
+        positions[m.id] = {
+          x: getX(m),
+          y: (m.isLoserBracket ? lbOffset : PADDING) + idx * (MATCH_HEIGHT + VERTICAL_GAP) * 2
+        };
+      }
     });
 
 
     // Normalize positions to remove empty space at top/left
     const minPosX = Object.values(positions).reduce((min, p) => Math.min(min, p.x), Infinity);
     const minPosY = Object.values(positions).reduce((min, p) => Math.min(min, p.y), Infinity);
-    
+
     if (minPosX !== Infinity && minPosY !== Infinity) {
-        Object.values(positions).forEach(p => {
-            p.x = p.x - minPosX + PADDING;
-            p.y = p.y - minPosY + PADDING;
-        });
+      Object.values(positions).forEach(p => {
+        p.x = p.x - minPosX + PADDING;
+        p.y = p.y - minPosY + PADDING;
+      });
     }
 
     const maxPosX = Object.values(positions).reduce((max, p) => Math.max(max, p.x), 0);
     const maxPosY = Object.values(positions).reduce((max, p) => Math.max(max, p.y), 0);
 
-    const activeMatches = displayMatches.filter(m => m.state !== "DONE" && m.team1Id && m.team2Id);
+    const activeMatches = matches.filter(m => m.state !== "DONE" && m.team1Id && m.team2Id);
     const lowestActiveId = activeMatches.length > 0 ? Math.min(...activeMatches.map(m => m.id)) : null;
 
     return { positions, k, maxPosX, maxPosY, lowestActiveId, displayMatches };
@@ -146,8 +146,8 @@ export function SvgBracket({ matches, isAdmin, onMatchClick, minimal, bracketTyp
 
   return (
     <div className={cn(
-        "w-full h-full overflow-auto relative flex",
-        !minimal && "bg-background/50 backdrop-blur-sm rounded-3xl border border-border/50 shadow-2xl"
+      "w-full h-full overflow-auto relative flex",
+      !minimal && "bg-background/50 backdrop-blur-sm border border-border/50 shadow-2xl"
     )}>
       <svg
         width={width}
@@ -165,11 +165,43 @@ export function SvgBracket({ matches, isAdmin, onMatchClick, minimal, bracketTyp
             <stop offset="100%" stopColor="oklch(0.588 0.158 241.966 / 0.8)" />
           </linearGradient>
           <clipPath id="matchClip">
-            <rect width={MATCH_WIDTH} height={MATCH_HEIGHT} rx="12" />
+            <rect width={MATCH_WIDTH} height={MATCH_HEIGHT} rx="0" />
           </clipPath>
         </defs>
 
         {/* Connectors */}
+        {/* Layer 1: Glow (Background) */}
+        {displayMatches.map((m) => {
+          const pos = positions[m.id];
+          if (!pos || m.id !== lowestActiveId) return null;
+
+          return (
+            <g key={`glow-${m.id}`} transform={`translate(${pos.x}, ${pos.y})`}>
+              <rect
+                width={MATCH_WIDTH}
+                height={MATCH_HEIGHT}
+                rx="0"
+                fill="var(--primary)" 
+                className="animate-pulse opacity-15 filter blur-xl"
+                transform="scale(1.4)"
+                x={-MATCH_WIDTH * 0.1}
+                y={-MATCH_HEIGHT * 0.1}
+              />
+              <rect
+                width={MATCH_WIDTH}
+                height={MATCH_HEIGHT}
+                rx="0"
+                fill="var(--primary)"
+                className="animate-pulse opacity-25 filter blur-md"
+                transform="scale(1.16)"
+                x={-MATCH_WIDTH * 0.08}
+                y={-MATCH_HEIGHT * 0.08}
+              />
+            </g>
+          );
+        })}
+
+        {/* Layer 2: Connectors */}
         {displayMatches.map((m) => {
           const start = positions[m.id];
           if (!start) return null;
@@ -224,38 +256,12 @@ export function SvgBracket({ matches, isAdmin, onMatchClick, minimal, bracketTyp
               )}
               onClick={() => onMatchClick(m)}
             >
-              {/* Glow for Active Match */}
-              {isActive && (
-                <>
-                  <rect
-                    width={MATCH_WIDTH}
-                    height={MATCH_HEIGHT}
-                    rx="12"
-                    fill="var(--primary)"
-                    className="animate-pulse opacity-15 filter blur-xl"
-                    transform="scale(1.2)"
-                    x={-MATCH_WIDTH * 0.1}
-                    y={-MATCH_HEIGHT * 0.1}
-                  />
-                  <rect
-                    width={MATCH_WIDTH}
-                    height={MATCH_HEIGHT}
-                    rx="12"
-                    fill="var(--primary)"
-                    className="animate-pulse opacity-25 filter blur-md"
-                    transform="scale(1.08)"
-                    x={-MATCH_WIDTH * 0.04}
-                    y={-MATCH_HEIGHT * 0.04}
-                  />
-                </>
-              )}
-              
               <g clipPath="url(#matchClip)">
                 {/* Card Background */}
                 <rect
                   width={MATCH_WIDTH}
                   height={MATCH_HEIGHT}
-                  rx="12"
+                  rx="0"
                   fill="var(--card)"
                   // stroke={isActive ? "var(--primary)" : isDone ? "var(--primary)" : "var(--border)"}
                   strokeWidth={isActive || isDone ? "2" : "1"}

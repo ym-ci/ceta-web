@@ -20,7 +20,7 @@ import { ModeToggle } from "~/components/mode-toggle";
 type Match = RouterOutputs["bracket"]["getAllMatches"][number];
 
 export default function BracketSvgPage() {
-  const { data: matches, isLoading, refetch } = api.bracket.getAllMatches.useQuery();
+  const { data: matches, isLoading, refetch } = api.bracket.getAllMatches.useQuery(undefined, { refetchInterval: 5000 });
   const updateMatchMutation = api.bracket.updateMatch.useMutation({
     onSuccess: () => {
       void refetch();

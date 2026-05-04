@@ -20,7 +20,7 @@ import {
 import { ModeToggle } from "~/components/mode-toggle";
 
 export default function BracketPage() {
-  const { data: matches, isLoading, refetch } = api.bracket.getAllMatches.useQuery();
+  const { data: matches, isLoading, refetch } = api.bracket.getAllMatches.useQuery(undefined, { refetchInterval: 5000 });
   const updateMatchMutation = api.bracket.updateMatch.useMutation({
     onSuccess: () => {
       void refetch();
