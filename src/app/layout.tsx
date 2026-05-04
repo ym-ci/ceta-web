@@ -25,7 +25,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={cn(geist.variable, "font-mono", jetbrainsMono.variable)} suppressHydrationWarning>
+    <html lang="en" className={cn("font-mono", jetbrainsMono.variable)} suppressHydrationWarning>
       <body>
         <ThemeProvider
           attribute="class"

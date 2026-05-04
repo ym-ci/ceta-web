@@ -13,11 +13,11 @@ interface SvgBracketProps {
   minimal?: boolean;
 }
 
-const COL_WIDTH = 350;
-const MATCH_WIDTH = 260;
-const MATCH_HEIGHT = 90;
-const VERTICAL_GAP = 60;
-const PADDING = 100;
+const COL_WIDTH = 190;
+const MATCH_WIDTH = 180;
+const MATCH_HEIGHT = 50;
+const VERTICAL_GAP = 0;
+const PADDING = 50;
 
 export function SvgBracket({ matches, isAdmin, onMatchClick, minimal }: SvgBracketProps) {
   const layout = useMemo(() => {
@@ -87,7 +87,7 @@ export function SvgBracket({ matches, isAdmin, onMatchClick, minimal }: SvgBrack
 
     const wbHeight = Math.pow(2, k - 1) * (MATCH_HEIGHT + VERTICAL_GAP);
     const lbHeight = Math.pow(2, k - 2) * (MATCH_HEIGHT + VERTICAL_GAP);
-    const lbOffset = wbHeight + 300;
+    const lbOffset = wbHeight + 40;
 
     matches.forEach(m => {
         const range = matchRanges[m.id];
@@ -109,14 +109,28 @@ export function SvgBracket({ matches, isAdmin, onMatchClick, minimal }: SvgBrack
     });
 
 
-    return { positions, k };
+    // Normalize positions to remove empty space at top/left
+    const minPosX = Object.values(positions).reduce((min, p) => Math.min(min, p.x), Infinity);
+    const minPosY = Object.values(positions).reduce((min, p) => Math.min(min, p.y), Infinity);
+    
+    if (minPosX !== Infinity && minPosY !== Infinity) {
+        Object.values(positions).forEach(p => {
+            p.x = p.x - minPosX + PADDING;
+            p.y = p.y - minPosY + PADDING;
+        });
+    }
+
+    const maxPosX = Object.values(positions).reduce((max, p) => Math.max(max, p.x), 0);
+    const maxPosY = Object.values(positions).reduce((max, p) => Math.max(max, p.y), 0);
+
+    return { positions, k, maxPosX, maxPosY };
   }, [matches]);
 
-  const { positions, k } = layout;
+  const { positions, k, maxPosX, maxPosY } = layout;
 
-  // Calculate SVG bounds
-  const width = (k * 2 + 1) * COL_WIDTH + PADDING * 2;
-  const height = (matches.length / 2) * (MATCH_HEIGHT + VERTICAL_GAP) * 2 + PADDING * 2;
+  // Calculate SVG bounds based on actual content
+  const width = maxPosX + MATCH_WIDTH + PADDING;
+  const height = maxPosY + MATCH_HEIGHT + PADDING;
 
   return (
     <div className={cn(
@@ -211,35 +225,35 @@ export function SvgBracket({ matches, isAdmin, onMatchClick, minimal }: SvgBrack
 
               {/* Match Header (ID) */}
               <text
-                x={MATCH_WIDTH - 8}
-                y={18}
+                x={MATCH_WIDTH - 6}
+                y={12}
                 textAnchor="end"
-                className="text-[10px] font-bold fill-muted-foreground opacity-40 uppercase tracking-widest"
+                className="text-[8px] font-bold fill-muted-foreground opacity-30 uppercase tracking-widest"
               >
                 #{m.id}
               </text>
               <text
-                x={8}
-                y={18}
-                className="text-[10px] font-black fill-muted-foreground uppercase tracking-tighter"
+                x={6}
+                y={12}
+                className="text-[8px] font-black fill-muted-foreground uppercase tracking-tighter"
               >
                 {m.tournamentRoundText}
               </text>
 
               {/* Team 1 Row */}
-              <g transform="translate(0, 24)">
+              <g transform="translate(0, 15)">
                 <rect
                   width={MATCH_WIDTH}
-                  height={33}
+                  height={17}
                   fill={m.winnerId === m.team1Id && m.winnerId ? "var(--primary)" : "transparent"}
                   className="transition-colors"
                 />
-                <rect width={4} height={33} fill="oklch(0.645 0.246 16.439)" />
+                <rect width={3} height={17} fill="oklch(0.645 0.246 16.439)" />
                 <text
-                  x={12}
-                  y={22}
+                  x={10}
+                  y={12}
                   className={cn(
-                    "text-sm font-bold tracking-tight uppercase",
+                    "text-[10px] font-bold tracking-tight uppercase",
                     m.winnerId === m.team1Id && m.winnerId ? "fill-primary-foreground" : "fill-foreground",
                     m.winnerId && m.winnerId !== m.team1Id && "opacity-30"
                   )}
@@ -249,19 +263,19 @@ export function SvgBracket({ matches, isAdmin, onMatchClick, minimal }: SvgBrack
               </g>
 
               {/* Team 2 Row */}
-              <g transform="translate(0, 57)">
+              <g transform="translate(0, 32)">
                 <rect
                   width={MATCH_WIDTH}
-                  height={33}
+                  height={17}
                   fill={m.winnerId === m.team2Id && m.winnerId ? "var(--primary)" : "transparent"}
                   className="transition-colors"
                 />
-                <rect width={4} height={33} fill="oklch(0.588 0.158 241.966)" />
+                <rect width={3} height={17} fill="oklch(0.588 0.158 241.966)" />
                 <text
-                  x={12}
-                  y={22}
+                  x={10}
+                  y={12}
                   className={cn(
-                    "text-sm font-bold tracking-tight uppercase",
+                    "text-[10px] font-bold tracking-tight uppercase",
                     m.winnerId === m.team2Id && m.winnerId ? "fill-primary-foreground" : "fill-foreground",
                     m.winnerId && m.winnerId !== m.team2Id && "opacity-30"
                   )}
@@ -274,11 +288,11 @@ export function SvgBracket({ matches, isAdmin, onMatchClick, minimal }: SvgBrack
               {isDone && (
                 <text
                   x={MATCH_WIDTH / 2}
-                  y={MATCH_HEIGHT + 14}
+                  y={MATCH_HEIGHT + 8}
                   textAnchor="middle"
-                  className="text-[8px] font-black fill-primary uppercase tracking-[0.2em]"
+                  className="text-[6px] font-black fill-primary uppercase tracking-[0.1em]"
                 >
-                  COMPLETED
+                  DONE
                 </text>
               )}
             </g>
