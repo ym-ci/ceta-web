@@ -34,17 +34,26 @@ export default async function Home() {
             <iframe src="https://www.youtube.com/embed/gGcPor_oriM" className="w-25% aspect-video min-w-xl" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen></iframe>
           </div>
           
-          <div className="flex flex-col items-center gap-8">
-            <Button
-              asChild
-              variant="outline"
-              className="h-auto border-2 border-foreground px-12 py-4 text-2xl font-black uppercase tracking-[0.2em]"
-            >
-              <Link href="/bracket">
-                View Brackets
-              </Link>
-            </Button>
-          </div>
+            <div className="flex gap-4">
+              <Button
+                asChild
+                variant="outline"
+                className="h-auto border-2 border-foreground px-12 py-4 text-2xl font-black uppercase tracking-[0.2em]"
+              >
+                <Link href="/bracket">
+                  Classic
+                </Link>
+              </Button>
+              <Button
+                asChild
+                className="h-auto px-12 py-4 text-2xl font-black uppercase tracking-[0.2em]"
+              >
+                <Link href="/bracket-svg">
+                  SVG View
+                </Link>
+              </Button>
+            </div>
+
 
 
 
