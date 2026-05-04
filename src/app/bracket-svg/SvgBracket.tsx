@@ -28,7 +28,7 @@ export function SvgBracket({ matches, isAdmin, onMatchClick, minimal }: SvgBrack
         if (!m.isLoserBracket) {
             if (m.tournamentRoundText === "W-Final") k = Math.max(k, 1);
             const rMatch = /W-R(\d+)/.exec(m.tournamentRoundText);
-            if (rMatch) k = Math.max(rMatch[1] ? parseInt(rMatch[1]!) + 1 : k, k);
+            if (rMatch) k = Math.max(rMatch[1] ? parseInt(rMatch[1]) + 1 : k, k);
         }
     });
 
@@ -162,7 +162,7 @@ export function SvgBracket({ matches, isAdmin, onMatchClick, minimal }: SvgBrack
                   fill="none"
                   stroke="var(--foreground)"
                   strokeWidth="2"
-                  strokeDasharray={m.isComplete ? "0" : "4 4"}
+                  strokeDasharray={m.state === "DONE" ? "0" : "4 4"}
                   className="transition-all duration-500"
                 />
               )}
