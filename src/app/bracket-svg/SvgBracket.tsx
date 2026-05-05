@@ -108,7 +108,8 @@ export function SvgBracket({ matches, isAdmin, onMatchClick, minimal, bracketTyp
         };
       } else {
         // Fallback for matches not reachable from Finals (should be rare)
-        const roundMatches = matches.filter(nm => nm.tournamentRoundText === m.tournamentRoundText).sort((a, b) => a.id - b.id);
+        // Only count matches from the same bracket type to get correct index
+        const roundMatches = displayMatches.filter(nm => nm.tournamentRoundText === m.tournamentRoundText).sort((a, b) => a.id - b.id);
         const idx = roundMatches.indexOf(m);
         positions[m.id] = {
           x: getX(m),
@@ -138,7 +139,7 @@ export function SvgBracket({ matches, isAdmin, onMatchClick, minimal, bracketTyp
     return { positions, k, maxPosX, maxPosY, lowestActiveId, displayMatches };
   }, [matches, bracketType]);
 
-  const { positions, k, maxPosX, maxPosY, lowestActiveId, displayMatches } = layout;
+  const { positions, maxPosX, maxPosY, lowestActiveId, displayMatches } = layout;
 
   // Calculate SVG bounds based on actual content
   const width = maxPosX + MATCH_WIDTH + PADDING;
@@ -209,9 +210,6 @@ export function SvgBracket({ matches, isAdmin, onMatchClick, minimal, bracketTyp
           const nextMatch = matches.find((nm) => nm.id === m.nextMatchId);
           const nextPos = nextMatch ? positions[nextMatch.id] : null;
 
-          const loserMatch = matches.find((nm) => nm.id === m.nextLooserMatchId);
-          const loserPos = loserMatch ? positions[loserMatch.id] : null;
-
           return (
             <React.Fragment key={`conn-${m.id}`}>
               {nextPos && (
@@ -224,16 +222,6 @@ export function SvgBracket({ matches, isAdmin, onMatchClick, minimal, bracketTyp
                   className="transition-all duration-500"
                 />
               )}
-              {/* {loserPos && (
-                <path
-                  d={`M ${start.x + MATCH_WIDTH} ${start.y + MATCH_HEIGHT / 2} L ${loserPos.x} ${loserPos.y + MATCH_HEIGHT / 2}`}
-                  fill="none"
-                  stroke="var(--foreground)"
-                  strokeWidth="1.5"
-                  opacity="0.4"
-                  strokeDasharray="2 2"
-                />
-              )} */}
             </React.Fragment>
           );
         })}
