@@ -80,7 +80,7 @@ export default function BracketPage() {
           </p>
           <div className="flex flex-col gap-3">
             <Button asChild variant="default" className="w-full h-12 rounded-xl uppercase font-bold tracking-widest">
-              <Link href="/">Back to Dashboard</Link>
+              <Link href="/bracket-svg">Back</Link>
             </Button>
             <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
               Tip: Run the seeder script to populate matches

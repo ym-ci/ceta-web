@@ -69,6 +69,29 @@ export default function BracketSvgPage() {
 
   if (!matches || matches.length === 0) {
     return (
+      <div>
+      {/* Header */}
+      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+        <div className="container flex flex-col gap-3 px-4 md:px-8 max-w-none py-3">
+          <div className="flex flex-wrap gap-2">
+            {challengeOptions.map((challenge) => (
+              <button
+                key={challenge.id}
+                type="button"
+                className={cn(
+                  "rounded-full px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.25em] transition-all duration-200",
+                  selectedChallenge === challenge.id
+                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/10"
+                    : "bg-muted text-muted-foreground hover:bg-muted/80"
+                )}
+                onClick={() => setSelectedChallenge(challenge.id)}
+              >
+                {challenge.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </header> 
       <div className="flex min-h-screen flex-col items-center justify-center bg-background text-foreground p-8">
         <div className="w-full max-w-md bg-card border border-border p-12 rounded-3xl text-center shadow-xl">
           <div className="mx-auto w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mb-6">
@@ -82,6 +105,7 @@ export default function BracketSvgPage() {
             <Link href="/">Back to Dashboard</Link>
           </Button>
         </div>
+      </div>
       </div>
     );
   }
