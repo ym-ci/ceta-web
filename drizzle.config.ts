@@ -8,5 +8,5 @@ export default {
   dbCredentials: {
     url: env.DATABASE_URL,
   },
-  tablesFilter: ["ceta-web_*"],
+  tablesFilter: ["ceta-web_*", "pg-drizzle_*"],
 } satisfies Config;

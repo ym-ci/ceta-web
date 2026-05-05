@@ -13,15 +13,20 @@ export const bracketRouter = createTRPCRouter({
     return ctx.db.query.team.findMany();
   }),
 
-  getAllMatches: publicProcedure.query(async ({ ctx }) => {
-    return ctx.db.query.match.findMany({
-      with: {
-        team1: true,
-        team2: true,
-        winner: true,
-      },
-    });
-  }),
+  getAllMatches: publicProcedure
+    .input(z.object({
+      challenge: z.enum(["fairway", "iot", "bucket"]).optional(),
+    }))
+    .query(async ({ ctx, input }) => {
+      return ctx.db.query.match.findMany({
+        where: input?.challenge ? eq(match.challenge, input.challenge) : undefined,
+        with: {
+          team1: true,
+          team2: true,
+          winner: true,
+        },
+      });
+    }),
 
   updateMatch: protectedProcedure
     .input(

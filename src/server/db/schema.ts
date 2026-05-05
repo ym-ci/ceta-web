@@ -7,7 +7,7 @@ import {
   timestamp,
 } from "drizzle-orm/pg-core";
 
-export const createTable = pgTableCreator((name) => `pg-drizzle_${name}`);
+export const createTable = pgTableCreator((name) => `ceta-web_${name}`);
 
 
 
@@ -18,6 +18,7 @@ export const team = createTable("team", (d) => ({
 
 export const match = createTable("match", (d) => ({
   id: d.integer().primaryKey(),
+  challenge: d.varchar({ length: 256 }).notNull().default("fairway"), // 'fairway', 'iot', 'bucket'
   nextMatchId: d.integer(), // null if final
   nextLooserMatchId: d.integer(), // null if loser is eliminated
   tournamentRoundText: d.varchar({ length: 256 }).notNull(),
@@ -28,7 +29,7 @@ export const match = createTable("match", (d) => ({
   isLoserBracket: boolean("is_loser_bracket").default(false).notNull(),
 }));
 
-export const user = pgTable("user", {
+export const user = createTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
@@ -44,7 +45,7 @@ export const user = pgTable("user", {
     .notNull(),
 });
 
-export const session = pgTable("session", {
+export const session = createTable("session", {
   id: text("id").primaryKey(),
   expiresAt: timestamp("expires_at").notNull(),
   token: text("token").notNull().unique(),
@@ -57,7 +58,7 @@ export const session = pgTable("session", {
     .references(() => user.id, { onDelete: "cascade" }),
 });
 
-export const account = pgTable("account", {
+export const account = createTable("account", {
   id: text("id").primaryKey(),
   accountId: text("account_id").notNull(),
   providerId: text("provider_id").notNull(),
@@ -75,7 +76,7 @@ export const account = pgTable("account", {
   updatedAt: timestamp("updated_at").notNull(),
 });
 
-export const verification = pgTable("verification", {
+export const verification = createTable("verification", {
   id: text("id").primaryKey(),
   identifier: text("identifier").notNull(),
   value: text("value").notNull(),

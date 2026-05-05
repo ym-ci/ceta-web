@@ -20,15 +20,33 @@ async function seed(customNames?: string[]) {
 
   console.log(`Inserted ${insertedTeams.length} teams`);
 
-  // Shuffle teams for random seeding
-  const shuffledTeams = shuffleArray([...insertedTeams]);
+  const challenges = [
+    { id: "fairway", name: "Running the Fairway" },
+    { id: "iot", name: "IoT & Collision avoidance" },
+    { id: "bucket", name: "Bucket Challenge" }
+  ];
 
-  // Auto-generate matches for a double elimination bracket
-  const matchesToInsert = generateBracket(shuffledTeams);
+  let globalMatchIdCounter = 1;
+  const allMatches: MatchInsert[] = [];
 
-  await db.insert(match).values(matchesToInsert);
+  for (const challenge of challenges) {
+    console.log(`Generating bracket for: ${challenge.name}`);
+    // Shuffle teams for random seeding in each challenge
+    const shuffledTeams = shuffleArray([...insertedTeams]);
+    const challengeMatches = generateBracket(shuffledTeams, challenge.id, globalMatchIdCounter);
+    
+    allMatches.push(...challengeMatches);
+    // Update global counter for next challenge
+    if (challengeMatches.length > 0) {
+      globalMatchIdCounter = Math.max(...challengeMatches.map(m => m.id)) + 1;
+    }
+  }
+
+  if (allMatches.length > 0) {
+    await db.insert(match).values(allMatches);
+  }
   
-  console.log(`Seeded ${matchesToInsert.length} matches successfully!`);
+  console.log(`Seeded ${allMatches.length} matches across ${challenges.length} challenges successfully!`);
   process.exit(0);
 }
 
@@ -58,7 +76,7 @@ function getSeeding(n: number): number[] {
   return seeding;
 }
 
-function generateBracket(insertedTeams: { id: number }[]) {
+function generateBracket(insertedTeams: { id: number }[], challengeId: string, startId: number) {
   const n = insertedTeams.length;
   if (n === 0) return [];
 
@@ -70,7 +88,7 @@ function generateBracket(insertedTeams: { id: number }[]) {
   const seeding = getSeeding(bracketSize);
   
   const matches: MatchInsert[] = [];
-  let currentMatchId = 1;
+  let currentMatchId = startId;
 
   // Winners Bracket (WB)
   const wb: MatchInsert[][] = [];
@@ -80,6 +98,7 @@ function generateBracket(insertedTeams: { id: number }[]) {
     for (let m = 0; m < numMatchesInRound; m++) {
       const matchObj: MatchInsert = {
         id: currentMatchId++,
+        challenge: challengeId,
         tournamentRoundText: r === k - 1 ? "W-Final" : `W-R${r + 1}`,
         state: "SCHEDULED",
         isLoserBracket: false,
@@ -119,6 +138,7 @@ function generateBracket(insertedTeams: { id: number }[]) {
       const isFinal = r === 2 * k - 3;
       const matchObj: MatchInsert = {
         id: currentMatchId++,
+        challenge: challengeId,
         tournamentRoundText: isFinal ? "L-Final" : `L-R${r + 1}`,
         state: "SCHEDULED",
         isLoserBracket: true,
@@ -269,14 +289,14 @@ function generateBracket(insertedTeams: { id: number }[]) {
   });
 
   // --- RE-INDEX MATCHES ---
-  // Create a map of old IDs to new sequential IDs
+  // Create a map of old IDs to new sequential IDs (starting from startId)
   const idMap = new Map<number, number>();
   const finalMatches: MatchInsert[] = [];
   
   // First pass: Assign new IDs and build the map
   matches.forEach((m, index) => {
     const oldId = m.id;
-    const newId = index + 1;
+    const newId = startId + index;
     idMap.set(oldId, newId);
     
     finalMatches.push({

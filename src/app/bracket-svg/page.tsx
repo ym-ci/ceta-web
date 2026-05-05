@@ -7,6 +7,7 @@ import { authClient } from "~/server/better-auth/client";
 import { SvgBracket } from "./SvgBracket";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
+import { cn } from "~/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -20,7 +21,17 @@ import { ModeToggle } from "~/components/mode-toggle";
 type Match = RouterOutputs["bracket"]["getAllMatches"][number];
 
 export default function BracketSvgPage() {
-  const { data: matches, isLoading, refetch } = api.bracket.getAllMatches.useQuery(undefined, { refetchInterval: 5000 });
+  const challengeOptions = [
+    { id: "fairway" as const, label: "Running the Fairway" },
+    { id: "iot" as const, label: "IoT & Collision avoidance" },
+    { id: "bucket" as const, label: "Bucket Challenge" },
+  ];
+  type ChallengeId = (typeof challengeOptions)[number]["id"];
+
+  const [selectedChallenge, setSelectedChallenge] = useState<ChallengeId>("fairway");
+  const selectedChallengeLabel = challengeOptions.find((c) => c.id === selectedChallenge)?.label ?? "Selected Challenge";
+
+  const { data: matches, isLoading, refetch } = api.bracket.getAllMatches.useQuery({ challenge: selectedChallenge }, { refetchInterval: 5000 });
   const updateMatchMutation = api.bracket.updateMatch.useMutation({
     onSuccess: () => {
       void refetch();
@@ -65,7 +76,7 @@ export default function BracketSvgPage() {
           </div>
           <h2 className="text-2xl font-bold tracking-tight uppercase mb-2">No Matches Found</h2>
           <p className="text-muted-foreground text-sm font-medium uppercase tracking-widest mb-8">
-            The tournament bracket is empty.
+            No matches found for {selectedChallengeLabel}.
           </p>
           <Button asChild variant="default" className="w-full h-12 rounded-xl uppercase font-bold tracking-widest">
             <Link href="/">Back to Dashboard</Link>
@@ -98,24 +109,43 @@ export default function BracketSvgPage() {
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans overflow-hidden">
       {/* Header */}
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="container flex h-16 items-center justify-between px-4 md:px-8 max-w-none">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-black">C</div>
-              <span className="text-lg font-bold tracking-tight uppercase">CETA <span className="text-muted-foreground font-medium text-xs">SVG</span></span>
-            </Link>
-            <div className="h-4 w-px bg-border mx-2" />
-            <Link href="/bracket" className="text-[10px] font-bold uppercase text-muted-foreground hover:text-foreground transition-colors tracking-widest">
-                Classic View
-            </Link>
+        <div className="container flex flex-col gap-3 px-4 md:px-8 max-w-none py-3">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <Link href="/" className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-black">C</div>
+                <span className="text-lg font-bold tracking-tight uppercase">CETA <span className="text-muted-foreground font-medium text-xs">SVG</span></span>
+              </Link>
+              <div className="h-4 w-px bg-border mx-2" />
+              <Link href="/bracket" className="text-[10px] font-bold uppercase text-muted-foreground hover:text-foreground transition-colors tracking-widest">
+                  Classic View
+              </Link>
+            </div>
+            <div className="flex items-center gap-4">
+              <ModeToggle />
+              {isAdmin && (
+                <Badge variant="outline" className="border-primary/20 text-primary bg-primary/5 rounded-full uppercase text-[10px] tracking-widest font-bold">
+                  Admin
+                </Badge>
+              )}
+            </div>
           </div>
-          <div className="flex items-center gap-4">
-            <ModeToggle />
-            {isAdmin && (
-              <Badge variant="outline" className="border-primary/20 text-primary bg-primary/5 rounded-full uppercase text-[10px] tracking-widest font-bold">
-                Admin
-              </Badge>
-            )}
+          <div className="flex flex-wrap gap-2">
+            {challengeOptions.map((challenge) => (
+              <button
+                key={challenge.id}
+                type="button"
+                className={cn(
+                  "rounded-full px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.25em] transition-all duration-200",
+                  selectedChallenge === challenge.id
+                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/10"
+                    : "bg-muted text-muted-foreground hover:bg-muted/80"
+                )}
+                onClick={() => setSelectedChallenge(challenge.id)}
+              >
+                {challenge.label}
+              </button>
+            ))}
           </div>
         </div>
       </header>

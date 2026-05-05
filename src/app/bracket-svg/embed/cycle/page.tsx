@@ -34,10 +34,13 @@ export default function CycleBracketEmbedPage() {
       setIsVisible(true);
       
       // 6. Recurse
-      cycle();
+      void cycle();
+      
     };
 
-    const timeout = setTimeout(cycle, 0);
+    const timeout = setTimeout(() => {
+      void cycle();
+    }, 0);
     return () => clearTimeout(timeout);
   }, []);
 
@@ -65,8 +68,8 @@ export default function CycleBracketEmbedPage() {
         <SvgBracket 
           matches={matches} 
           isAdmin={false} 
-          onMatchClick={() => {}} 
           minimal={true}
+          onMatchClick={() => {return}} 
           bracketType={bracketType}
         />
       </div>

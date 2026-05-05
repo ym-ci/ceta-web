@@ -29,8 +29,8 @@ export default function BracketEmbedPage() {
       <SvgBracket 
         matches={matches} 
         isAdmin={false} 
-        onMatchClick={() => {}} 
         minimal={true}
+        onMatchClick={() => {return}}
       />
     </div>
   );

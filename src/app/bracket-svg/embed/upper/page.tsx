@@ -29,7 +29,7 @@ export default function UpperBracketEmbedPage() {
       <SvgBracket 
         matches={matches} 
         isAdmin={false} 
-        onMatchClick={() => {}} 
+        onMatchClick={() => {return}} 
         minimal={true}
         bracketType="upper"
       />
