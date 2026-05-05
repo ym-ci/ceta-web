@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { api } from "~/trpc/react";
 import { SvgBracket } from "../../SvgBracket";
 import { cn } from "~/lib/utils";
@@ -8,8 +9,12 @@ import { cn } from "~/lib/utils";
 const CYCLE_TIME = 10000; // Time each bracket is shown (15s)
 const FADE_TIME = 750;   // Duration of the fade animation (1s)
 
-export default function CycleBracketEmbedPage() {
-  const { data: matches, isLoading } = api.bracket.getAllMatches.useQuery({}, { refetchInterval: 5000 });
+function CycleBracketEmbedContent() {
+  const searchParams = useSearchParams();
+  const challengeParam = searchParams.get("challenge");
+  const challenge = (challengeParam === "iot" || challengeParam === "bucket") ? challengeParam : "fairway";
+
+  const { data: matches, isLoading } = api.bracket.getAllMatches.useQuery({ challenge }, { refetchInterval: 5000 });
   const [mounted, setMounted] = useState(false);
   const [bracketType, setBracketType] = useState<"upper" | "lower">("upper");
   const [isVisible, setIsVisible] = useState(true);
@@ -74,5 +79,17 @@ export default function CycleBracketEmbedPage() {
         />
       </div>
     </div>
+  );
+}
+
+export default function CycleBracketEmbedPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-screen w-screen items-center justify-center bg-transparent">
+        <div className="h-8 w-8 rounded-full border-t-2 border-primary animate-spin" />
+      </div>
+    }>
+      <CycleBracketEmbedContent />
+    </Suspense>
   );
 }

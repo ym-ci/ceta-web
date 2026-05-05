@@ -18,7 +18,7 @@ const COL_WIDTH = 190;
 const MATCH_WIDTH = 180;
 const MATCH_HEIGHT = 50;
 const VERTICAL_GAP = 0;
-const PADDING = 100;
+const PADDING = 90;
 
 export function SvgBracket({ matches, isAdmin, onMatchClick, minimal, bracketType = "all" }: SvgBracketProps) {
   const layout = useMemo(() => {

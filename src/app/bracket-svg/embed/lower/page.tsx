@@ -1,11 +1,16 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { api } from "~/trpc/react";
 import { SvgBracket } from "../../SvgBracket";
 
-export default function LowerBracketEmbedPage() {
-  const { data: matches, isLoading } = api.bracket.getAllMatches.useQuery({}, { refetchInterval: 5000 });
+function LowerBracketEmbedContent() {
+  const searchParams = useSearchParams();
+  const challengeParam = searchParams.get("challenge");
+  const challenge = (challengeParam === "iot" || challengeParam === "bucket") ? challengeParam : "fairway";
+
+  const { data: matches, isLoading } = api.bracket.getAllMatches.useQuery({ challenge }, { refetchInterval: 5000 });
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -34,5 +39,17 @@ export default function LowerBracketEmbedPage() {
         bracketType="lower"
       />
     </div>
+  );
+}
+
+export default function LowerBracketEmbedPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-screen w-screen items-center justify-center bg-transparent">
+        <div className="h-8 w-8 rounded-full border-t-2 border-primary animate-spin" />
+      </div>
+    }>
+      <LowerBracketEmbedContent />
+    </Suspense>
   );
 }
