@@ -21,9 +21,9 @@ async function seed(customNames?: string[]) {
   console.log(`Inserted ${insertedTeams.length} teams`);
 
   const challenges = [
-    // { id: "fairway", name: "Running the Fairway" },
+    { id: "fairway", name: "Running the Fairway" },
     { id: "iot", name: "IoT & Collision avoidance" },
-    // { id: "bucket", name: "Bucket Challenge" }
+    { id: "bucket", name: "Bucket Challenge" }
   ];
 
   let globalMatchIdCounter = 1;
