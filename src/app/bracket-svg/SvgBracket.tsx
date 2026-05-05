@@ -18,7 +18,7 @@ const COL_WIDTH = 190;
 const MATCH_WIDTH = 180;
 const MATCH_HEIGHT = 50;
 const VERTICAL_GAP = 0;
-const PADDING = 50;
+const PADDING = 100;
 
 export function SvgBracket({ matches, isAdmin, onMatchClick, minimal, bracketType = "all" }: SvgBracketProps) {
   const layout = useMemo(() => {
@@ -250,12 +250,16 @@ export function SvgBracket({ matches, isAdmin, onMatchClick, minimal, bracketTyp
             <g
               key={m.id}
               transform={`translate(${pos.x}, ${pos.y})`}
-              className={cn(
-                "cursor-pointer group transition-transform hover:scale-[1.02]",
-                !isAdmin && "pointer-events-none"
-              )}
+              className={cn("origin-center")}
+              // style={{ transformOrigin: `${pos.x + MATCH_WIDTH / 2} ${pos.y + MATCH_HEIGHT / 2}` }}
               onClick={() => onMatchClick(m)}
             >
+              <g
+              className={cn(
+                "cursor-pointer group transition-transform origin-center hover:scale-[1.01]",
+                !isAdmin && "pointer-events-none"
+              )}
+              >
               <g clipPath="url(#matchClip)">
                 {/* Card Background */}
                 <rect
@@ -265,7 +269,7 @@ export function SvgBracket({ matches, isAdmin, onMatchClick, minimal, bracketTyp
                   fill="var(--card)"
                   // stroke={isActive ? "var(--primary)" : isDone ? "var(--primary)" : "var(--border)"}
                   strokeWidth={isActive || isDone ? "2" : "1"}
-                  className="transition-all shadow-sm group-hover:shadow-md"
+                  className="transition-all shadow-sm"
                 />
 
                 {/* Match Header (ID) */}
@@ -359,6 +363,7 @@ export function SvgBracket({ matches, isAdmin, onMatchClick, minimal, bracketTyp
                   </text>
                 </g>
               ) : null} */}
+              </g>
             </g>
           );
         })}

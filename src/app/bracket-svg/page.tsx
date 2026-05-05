@@ -110,7 +110,7 @@ export default function BracketSvgPage() {
       {/* Header */}
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="container flex flex-col gap-3 px-4 md:px-8 max-w-none py-3">
-          <div className="flex items-center justify-between gap-4">
+          {/* <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <Link href="/" className="flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-black">C</div>
@@ -129,7 +129,7 @@ export default function BracketSvgPage() {
                 </Badge>
               )}
             </div>
-          </div>
+          </div> */}
           <div className="flex flex-wrap gap-2">
             {challengeOptions.map((challenge) => (
               <button
@@ -150,7 +150,7 @@ export default function BracketSvgPage() {
         </div>
       </header>
 
-      <main className="flex-1 relative overflow-hidden bg-muted/10 p-4 md:p-8">
+      <main className="flex-1 relative overflow-hidden bg-muted/10">
         <SvgBracket 
             matches={matches} 
             isAdmin={isAdmin} 
