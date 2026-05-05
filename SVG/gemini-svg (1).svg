@@ -1,0 +1,4 @@
+  <defs>
+    <clipPath id="hideBehindCenter">
+      <rect x="0" y="0" width="245" height="200" /> <rect x="355" y="0" width="245" height="200" /> </clipPath>
+  </defs>

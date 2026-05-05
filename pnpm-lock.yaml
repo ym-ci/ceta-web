@@ -87,6 +87,9 @@ importers:
       '@types/node':
         specifier: ^20.14.10
         version: 20.19.39
+      '@types/obs-studio':
+        specifier: ^2.17.2
+        version: 2.17.2
       '@types/react':
         specifier: ^19.0.0
         version: 19.2.14
@@ -2089,6 +2092,9 @@ packages:
 
   '@types/node@20.19.39':
     resolution: {integrity: sha512-orrrD74MBUyK8jOAD/r0+lfa1I2MO6I+vAkmAWzMYbCcgrN4lCrmK52gRFQq/JRxfYPfonkr4b0jcY7Olqdqbw==}
+
+  '@types/obs-studio@2.17.2':
+    resolution: {integrity: sha512-DH9lSHcXKTtYSOFRIbZLmCTDQwtCZbVrTHpInzGp5y/Yb0lUarjw2d3wEK0zox8oevOHlXMx+ig20l2xVTCZwg==}
 
   '@types/react-dom@19.2.3':
     resolution: {integrity: sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==}
@@ -6438,6 +6444,8 @@ snapshots:
   '@types/node@20.19.39':
     dependencies:
       undici-types: 6.21.0
+
+  '@types/obs-studio@2.17.2': {}
 
   '@types/react-dom@19.2.3(@types/react@19.2.14)':
     dependencies:
