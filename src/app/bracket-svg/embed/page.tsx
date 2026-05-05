@@ -5,7 +5,7 @@ import { api } from "~/trpc/react";
 import { SvgBracket } from "../SvgBracket";
 
 export default function BracketEmbedPage() {
-  const { data: matches, isLoading } = api.bracket.getAllMatches.useQuery(undefined, { refetchInterval: 5000 });
+  const { data: matches, isLoading } = api.bracket.getAllMatches.useQuery({}, { refetchInterval: 5000 });
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

@@ -9,7 +9,7 @@ const CYCLE_TIME = 10000; // Time each bracket is shown (15s)
 const FADE_TIME = 750;   // Duration of the fade animation (1s)
 
 export default function CycleBracketEmbedPage() {
-  const { data: matches, isLoading } = api.bracket.getAllMatches.useQuery(undefined, { refetchInterval: 5000 });
+  const { data: matches, isLoading } = api.bracket.getAllMatches.useQuery({}, { refetchInterval: 5000 });
   const [mounted, setMounted] = useState(false);
   const [bracketType, setBracketType] = useState<"upper" | "lower">("upper");
   const [isVisible, setIsVisible] = useState(true);
