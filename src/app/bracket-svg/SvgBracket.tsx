@@ -12,6 +12,7 @@ interface SvgBracketProps {
   onMatchClick: (match: Match) => void;
   minimal?: boolean;
   bracketType?: "upper" | "lower" | "all";
+  stream?: boolean;
 }
 
 const COL_WIDTH = 190;
@@ -20,7 +21,7 @@ const MATCH_HEIGHT = 50;
 const VERTICAL_GAP = 0;
 const PADDING = 90;
 
-export function SvgBracket({ matches, isAdmin, onMatchClick, minimal, bracketType = "all" }: SvgBracketProps) {
+export function SvgBracket({ matches, isAdmin, onMatchClick, minimal, bracketType = "all", stream }: SvgBracketProps) {
   const layout = useMemo(() => {
     const positions: Record<number, { x: number; y: number }> = {};
 
@@ -148,13 +149,19 @@ export function SvgBracket({ matches, isAdmin, onMatchClick, minimal, bracketTyp
   return (
     <div className={cn(
       "w-full h-full overflow-auto relative flex",
+      !stream && "min-h-0 overscroll-contain",
       !minimal && "bg-background/50 backdrop-blur-sm border border-border/50 shadow-2xl"
-    )}>
+    )}
+      style={stream ? undefined : { touchAction: "pan-x pan-y" }}
+    >
       <svg
         width={width}
         height={height}
         viewBox={`0 0 ${width} ${height}`}
-        className="touch-none select-none m-auto"
+        className={cn(
+          "select-none",
+          stream ? "touch-none m-auto" : "mx-auto block shrink-0"
+        )}
       >
         <defs>
           <linearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y2="0%">

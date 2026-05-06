@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { Suspense, useState, useEffect } from "react";
 import { api, type RouterOutputs } from "~/trpc/react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { authClient } from "~/server/better-auth/client";
 import { SvgBracket } from "./SvgBracket";
 import { Button } from "~/components/ui/button";
-import { Badge } from "~/components/ui/badge";
 import { cn } from "~/lib/utils";
 import {
   Dialog,
@@ -16,11 +16,30 @@ import {
   DialogTitle,
   DialogFooter,
 } from "~/components/ui/dialog";
-import { ModeToggle } from "~/components/mode-toggle";
 
 type Match = RouterOutputs["bracket"]["getAllMatches"][number];
 
-export default function BracketSvgPage() {
+function BracketSvgLoading() {
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background text-foreground">
+      <div className="relative">
+        <div className="h-24 w-24 rounded-full border-t-2 border-primary animate-spin" />
+        <div className="absolute inset-0 flex items-center justify-center">
+           <div className="h-16 w-16 rounded-full bg-primary/10 animate-pulse" />
+        </div>
+      </div>
+      <div className="mt-8 text-[10px] font-black uppercase tracking-[0.8em] text-muted-foreground animate-pulse">
+        Generating SVG Canvas
+      </div>
+    </div>
+  );
+}
+
+function BracketSvgPageContent() {
+  const searchParams = useSearchParams();
+  const streamParam = searchParams.get("stream");
+  const isStream = streamParam === "true" || streamParam === "1";
+
   const challengeOptions = [
     { id: "fairway" as const, label: "Running the Fairway" },
     { id: "iot" as const, label: "IoT & Collision avoidance" },
@@ -52,26 +71,14 @@ export default function BracketSvgPage() {
   }, []);
 
   if (isLoading || !mounted) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-background text-foreground">
-        <div className="relative">
-          <div className="h-24 w-24 rounded-full border-t-2 border-primary animate-spin" />
-          <div className="absolute inset-0 flex items-center justify-center">
-             <div className="h-16 w-16 rounded-full bg-primary/10 animate-pulse" />
-          </div>
-        </div>
-        <div className="mt-8 text-[10px] font-black uppercase tracking-[0.8em] text-muted-foreground animate-pulse">
-          Generating SVG Canvas
-        </div>
-      </div>
-    );
+    return <BracketSvgLoading />;
   }
 
   if (!matches || matches.length === 0) {
     return (
       <div>
       {/* Header */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+      <header className="border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 sticky top-0 z-50">
         <div className="container flex flex-col gap-3 px-4 md:px-8 max-w-none py-3">
           <div className="flex flex-wrap gap-2">
             {challengeOptions.map((challenge) => (
@@ -130,9 +137,14 @@ export default function BracketSvgPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans overflow-hidden">
+    <div
+      className={cn(
+        "bg-background text-foreground flex flex-col font-sans overflow-hidden",
+        isStream ? "min-h-screen" : "h-dvh"
+      )}
+    >
       {/* Header */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+      <header className="border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 sticky top-0 z-50">
         <div className="container flex flex-col gap-3 px-4 md:px-8 max-w-none py-3">
           {/* <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
@@ -174,11 +186,17 @@ export default function BracketSvgPage() {
         </div>
       </header>
 
-      <main className="flex-1 relative overflow-hidden bg-muted/10">
+      <main
+        className={cn(
+          "flex-1 relative overflow-hidden bg-muted/10",
+          !isStream && "min-h-0"
+        )}
+      >
         <SvgBracket 
             matches={matches} 
             isAdmin={isAdmin} 
             onMatchClick={handleMatchClick} 
+            stream={isStream}
         />
       </main>
 
@@ -251,5 +269,13 @@ export default function BracketSvgPage() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+export default function BracketSvgPage() {
+  return (
+    <Suspense fallback={<BracketSvgLoading />}>
+      <BracketSvgPageContent />
+    </Suspense>
   );
 }
