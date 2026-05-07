@@ -1,43 +1,25 @@
-import "~/styles/globals.css";
+import "../styles/globals.css";
 
-import { type Metadata } from "next";
-import { Geist, JetBrains_Mono } from "next/font/google";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import type { ReactNode } from "react";
 
-import { TRPCReactProvider } from "~/trpc/react";
-import { cn } from "~/lib/utils";
-
-const jetbrainsMono = JetBrains_Mono({subsets:['latin'],variable:'--font-mono'});
-
-export const metadata: Metadata = {
-  title: "CETA | Tournament Bracket",
-  description: "CETA Robotics 2026 Tournament Management System",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
-};
-
-const geist = Geist({
+const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-geist-sans",
+  variable: "--font-inter",
 });
 
-import { ThemeProvider } from "~/components/theme-provider";
-import { ThemeParamHandler } from "~/components/theme-param-handler";
+export const metadata: Metadata = {
+  title: "CETA Robotics Competition",
+  description: "CETA Robotics Competition website",
+};
 
 export default function RootLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="en" className={cn("font-mono", jetbrainsMono.variable)} suppressHydrationWarning>
-      <body>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <ThemeParamHandler />
-          <TRPCReactProvider>{children}</TRPCReactProvider>
-        </ThemeProvider>
-      </body>
+    <html lang="en">
+      <body className={inter.className}>{children}</body>
     </html>
   );
 }

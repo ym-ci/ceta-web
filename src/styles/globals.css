@@ -133,4 +133,12 @@
   html {
     @apply font-mono;
   }
+  html,
+  body {
+    min-height: 100%;
+    margin: 0;
+    background-color: #000000;
+    color: white;
+    overscroll-behavior-y: none;
+  }
 }
