@@ -2,19 +2,19 @@ import { db } from "./index";
 import { team, match } from "./schema";
 
 const defaultTeamNames = ["Haig Robotics A", "Haig Robotics B", "Moody Robot", "Savage", "Cooked Cornball", "Little Jeremy", "Good Bot", "Devious Birds", "Hatchlings", "SATEC 1", "W.A.rriors", "3 Musketeers", "The Bethlings", "Chorgirand the sesame seed", "Hamer", "TigerBots", "YM Zipties"]
-
 async function seed(customNames?: string[]) {
   const teamNames = customNames && customNames.length > 0 ? customNames : defaultTeamNames;
   
   console.log(`Seeding database with ${teamNames.length} teams...`);
 
-  // eslint-disable-next-line drizzle/enforce-delete-with-where
-  await db.delete(match);
-  // eslint-disable-next-line drizzle/enforce-delete-with-where
-  await db.delete(team);
+  // // eslint-disable-next-line drizzle/enforce-delete-with-where
+  // await db.delete(match);
+  // // eslint-disable-next-line drizzle/enforce-delete-with-where
+  // await db.delete(team);
 
   // Insert teams
   const insertedTeams = await db.insert(team).values(
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     teamNames.map(name => ({ name }))
   ).returning();
 

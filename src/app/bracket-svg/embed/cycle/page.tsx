@@ -76,6 +76,7 @@ function CycleBracketEmbedContent() {
           minimal={true}
           onMatchClick={() => {return}} 
           bracketType={bracketType}
+          stream={true}
         />
       </div>
     </div>

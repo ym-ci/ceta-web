@@ -12,6 +12,7 @@ interface SvgBracketProps {
   onMatchClick: (match: Match) => void;
   minimal?: boolean;
   bracketType?: "upper" | "lower" | "all";
+  stream?: boolean;
 }
 
 const COL_WIDTH = 190;
@@ -20,7 +21,7 @@ const MATCH_HEIGHT = 50;
 const VERTICAL_GAP = 0;
 const PADDING = 90;
 
-export function SvgBracket({ matches, isAdmin, onMatchClick, minimal, bracketType = "all" }: SvgBracketProps) {
+export function SvgBracket({ matches, isAdmin, onMatchClick, minimal, bracketType = "all", stream }: SvgBracketProps) {
   const layout = useMemo(() => {
     const positions: Record<number, { x: number; y: number }> = {};
 
@@ -148,13 +149,19 @@ export function SvgBracket({ matches, isAdmin, onMatchClick, minimal, bracketTyp
   return (
     <div className={cn(
       "w-full h-full overflow-auto relative flex",
+      !stream && "min-h-0 overscroll-contain",
       !minimal && "bg-background/50 backdrop-blur-sm border border-border/50 shadow-2xl"
-    )}>
+    )}
+      style={stream ? undefined : { touchAction: "pan-x pan-y" }}
+    >
       <svg
         width={width}
         height={height}
         viewBox={`0 0 ${width} ${height}`}
-        className="touch-none select-none m-auto"
+        className={cn(
+          "select-none",
+          stream ? "touch-none m-auto" : "mx-auto block shrink-0"
+        )}
       >
         <defs>
           <linearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -182,7 +189,7 @@ export function SvgBracket({ matches, isAdmin, onMatchClick, minimal, bracketTyp
                 width={MATCH_WIDTH}
                 height={MATCH_HEIGHT}
                 rx="0"
-                fill="var(--primary)" 
+                fill="var(--primary)"
                 className="animate-pulse opacity-15 filter blur-xl"
                 transform="scale(1.4)"
                 x={-MATCH_WIDTH * 0.1}
@@ -243,87 +250,87 @@ export function SvgBracket({ matches, isAdmin, onMatchClick, minimal, bracketTyp
               onClick={() => onMatchClick(m)}
             >
               <g
-              className={cn(
-                "cursor-pointer group transition-transform origin-center hover:scale-[1.01]",
-                !isAdmin && "pointer-events-none"
-              )}
+                className={cn(
+                  "cursor-pointer group transition-transform origin-center hover:scale-[1.01]",
+                  !isAdmin && "pointer-events-none"
+                )}
               >
-              <g clipPath="url(#matchClip)">
-                {/* Card Background */}
-                <rect
-                  width={MATCH_WIDTH}
-                  height={MATCH_HEIGHT}
-                  rx="0"
-                  fill="var(--card)"
-                  // stroke={isActive ? "var(--primary)" : isDone ? "var(--primary)" : "var(--border)"}
-                  strokeWidth={isActive || isDone ? "2" : "1"}
-                  className="transition-all shadow-sm"
-                />
-
-                {/* Match Header (ID) */}
-                <text
-                  x={MATCH_WIDTH - 6}
-                  y={12}
-                  textAnchor="end"
-                  className="text-[8px] font-bold fill-muted-foreground opacity-30 uppercase tracking-widest"
-                >
-                  #{m.id}
-                </text>
-                <text
-                  x={6}
-                  y={12}
-                  className="text-[8px] font-black fill-muted-foreground uppercase tracking-tighter"
-                >
-                  {m.tournamentRoundText}
-                </text>
-
-                {/* Team 1 Row */}
-                <g transform="translate(0, 15)">
+                <g clipPath="url(#matchClip)">
+                  {/* Card Background */}
                   <rect
                     width={MATCH_WIDTH}
-                    height={17}
-                    fill={m.winnerId === m.team1Id && m.winnerId ? "var(--primary)" : "transparent"}
-                    className="transition-colors"
+                    height={MATCH_HEIGHT}
+                    rx="0"
+                    fill="var(--card)"
+                    // stroke={isActive ? "var(--primary)" : isDone ? "var(--primary)" : "var(--border)"}
+                    strokeWidth={isActive || isDone ? "2" : "1"}
+                    className="transition-all shadow-sm"
                   />
-                  <rect width={3} height={17} fill="oklch(0.645 0.246 16.439)" />
+
+                  {/* Match Header (ID) */}
                   <text
-                    x={10}
+                    x={MATCH_WIDTH - 6}
                     y={12}
-                    className={cn(
-                      "text-[10px] font-bold tracking-tight uppercase",
-                      m.winnerId === m.team1Id && m.winnerId ? "fill-primary-foreground" : "fill-foreground",
-                      m.winnerId && m.winnerId !== m.team1Id && "opacity-30"
-                    )}
+                    textAnchor="end"
+                    className="text-[8px] font-bold fill-muted-foreground opacity-30 uppercase tracking-widest"
                   >
-                    {m.team1?.name ?? "TBD"}
+                    #{m.id}
                   </text>
+                  <text
+                    x={6}
+                    y={12}
+                    className="text-[8px] font-black fill-muted-foreground uppercase tracking-tighter"
+                  >
+                    {m.tournamentRoundText}
+                  </text>
+
+                  {/* Team 1 Row */}
+                  <g transform="translate(0, 15)">
+                    <rect
+                      width={MATCH_WIDTH}
+                      height={17}
+                      fill={m.winnerId === m.team1Id && m.winnerId ? "var(--primary)" : "transparent"}
+                      className="transition-colors"
+                    />
+                    <rect width={3} height={17} fill="oklch(0.645 0.246 16.439)" />
+                    <text
+                      x={10}
+                      y={12}
+                      className={cn(
+                        "text-[10px] font-bold tracking-tight uppercase",
+                        m.winnerId === m.team1Id && m.winnerId ? "fill-primary-foreground" : "fill-foreground",
+                        m.winnerId && m.winnerId !== m.team1Id && "opacity-30"
+                      )}
+                    >
+                      {m.team1?.name ?? "TBD"}
+                    </text>
+                  </g>
+
+                  {/* Team 2 Row */}
+                  <g transform="translate(0, 32)">
+                    <rect
+                      width={MATCH_WIDTH}
+                      height={17}
+                      fill={m.winnerId === m.team2Id && m.winnerId ? "var(--primary)" : "transparent"}
+                      className="transition-colors"
+                    />
+                    <rect width={3} height={17} fill="oklch(0.588 0.158 241.966)" />
+                    <text
+                      x={10}
+                      y={12}
+                      className={cn(
+                        "text-[10px] font-bold tracking-tight uppercase",
+                        m.winnerId === m.team2Id && m.winnerId ? "fill-primary-foreground" : "fill-foreground",
+                        m.winnerId && m.winnerId !== m.team2Id && "opacity-30"
+                      )}
+                    >
+                      {m.team2?.name ?? "TBD"}
+                    </text>
+                  </g>
                 </g>
 
-                {/* Team 2 Row */}
-                <g transform="translate(0, 32)">
-                  <rect
-                    width={MATCH_WIDTH}
-                    height={17}
-                    fill={m.winnerId === m.team2Id && m.winnerId ? "var(--primary)" : "transparent"}
-                    className="transition-colors"
-                  />
-                  <rect width={3} height={17} fill="oklch(0.588 0.158 241.966)" />
-                  <text
-                    x={10}
-                    y={12}
-                    className={cn(
-                      "text-[10px] font-bold tracking-tight uppercase",
-                      m.winnerId === m.team2Id && m.winnerId ? "fill-primary-foreground" : "fill-foreground",
-                      m.winnerId && m.winnerId !== m.team2Id && "opacity-30"
-                    )}
-                  >
-                    {m.team2?.name ?? "TBD"}
-                  </text>
-                </g>
-              </g>
-
-              {/* Series Status */}
-              {/* {isDone ? (
+                {/* Series Status */}
+                {/* {isDone ? (
                 <text
                   x={MATCH_WIDTH / 2}
                   y={MATCH_HEIGHT + 8}
