@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import Link from "next/link";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 
 import { auth } from "~/server/better-auth";
@@ -19,10 +20,20 @@ export default async function Home() {
         </div>
         <div className="container flex flex-col items-center justify-center gap-8 px-4 py-16">
           <div className="flex flex-col items-center">
+            <h1 className="flex items-center justify-center gap-3 text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-blue-400 to-blue-300">
+            <Image
+              src="/assets/ceta/CETA-logo-v2025-light.png"
+              alt="CETA Logo"
+              width={160}
+              height={64}
+              className="h-[2.2em] w-auto object-contain"
+              priority
+            />
+          </h1>
             <h1 className="text-6xl font-black tracking-tighter uppercase sm:text-[7rem] leading-none">
               CETA
             </h1>
-            <p className="text-xl font-black uppercase tracking-[0.4em] pb-4">2026</p>
+            {/* <p className="text-xl font-black uppercase tracking-[0.4em] pb-4">2026</p> */}
             <div className="bg-foreground text-background px-4 py-1">
               <span className="text-xl font-black uppercase tracking-[0.4em]">@ York Mills CI</span>
             </div>
