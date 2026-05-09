@@ -72,9 +72,12 @@ export default function Navbar() {
           </nav>
 
           <div className="mx-1 h-8 w-px bg-white/10" />
-
-          <Link href="/live" target="_blank" className="rounded-full bg-lime-600 px-5 py-2 text-sm font-semibold text-white transition-all hover:scale-105 hover:bg-lime-500">
+          {/* <Link href="/live" target="_blank" className="rounded-full bg-lime-600 px-5 py-2 text-sm font-semibold text-white transition-all hover:scale-105 hover:bg-lime-500">
             Watch
+          </Link> */}
+          {/* Registration Button - turn off when registration closes */}
+          <Link href="https://forms.gle/Qi6wvBmajwB5B1J56" target="_blank" className="rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white transition-all hover:bg-blue-500 hover:scale-105">
+            Register
           </Link>
         </motion.div>
       </div>

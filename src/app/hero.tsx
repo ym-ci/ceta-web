@@ -35,27 +35,31 @@ export default function Hero() {
       <div className="container relative z-10 px-4 md:px-6">
         <div className="flex flex-col items-center gap-8 text-center">
           <PopIn>
-            <div className="inline-flex items-center rounded-full border px-3 py-1 text-sm font-medium backdrop-blur-md border-zinc-400/30 bg-zinc-400/10 text-zinc-200">
+            <div className="inline-flex items-center rounded-full border px-3 py-1 text-sm font-medium backdrop-blur-md border-red-400/30 bg-red-400/10 text-zinc-200">
               <span className="mr-2 flex h-2 w-2 animate-pulse rounded-full bg-zinc-300" />
               Registration is now closed
             </div>
+            {/* <div className="inline-flex items-center rounded-full border px-3 py-1 text-sm font-medium backdrop-blur-md border-blue-600/30 bg-blue-600/30 text-zinc-200">
+              <span className="mr-2 flex h-2 w-2 animate-pulse rounded-full bg-zinc-300" />
+              Registration is now open
+            </div> */}
           </PopIn>
 
           <div className="space-y-4">
             <PopIn delay={0.1}>
               <h1 className="text-5xl font-extrabold tracking-tight md:text-7xl lg:text-8xl">
-                <span className="bg-gradient-to-b from-zinc-100 via-zinc-300 to-zinc-500 bg-clip-text text-transparent drop-shadow-[0_0_18px_rgba(255,255,255,0.10)]">
+                <span className="bg-linear-to-b from-zinc-100 via-zinc-300 to-zinc-400 bg-clip-text text-transparent drop-shadow-[0_0_18px_rgba(255,255,255,0.10)]">
                   CETA
                 </span>
                 <br />
-                <span className="bg-gradient-to-r from-zinc-400 via-zinc-200 to-zinc-400 bg-clip-text text-transparent drop-shadow-[0_0_22px_rgba(255,255,255,0.10)]">
+                <span className="bg-linear-to-r from-zinc-300 via-zinc-200 to-zinc-400 bg-clip-text text-transparent drop-shadow-[0_0_22px_rgba(255,255,255,0.10)]">
                   Robotics Competition
                 </span>
               </h1>
             </PopIn>
 
             <PopIn delay={0.2}>
-              <p className="mx-auto max-w-[700px] text-lg font-medium text-zinc-400 md:text-xl">
+              <p className="mx-auto max-w-175 text-lg font-medium text-zinc-400 md:text-xl">
                 Build it, code it, race it! Showcase your skills in this robotics challenge!
               </p>
             </PopIn>
