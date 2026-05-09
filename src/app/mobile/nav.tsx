@@ -2,11 +2,12 @@
 
 import React, { useEffect, useRef } from "react";
 import { AnimatePresence, motion, useCycle } from "framer-motion";
+import type { Variants } from "framer-motion";
 import { useDimensions } from "@/components/dimensions";
-import { Navigation } from "@/app/(dark)/ceta/mobile/navigation";
-import { MenuToggle } from "@/app/(dark)/ceta/menu-toggle";
+import { Navigation } from "@/app/mobile/navigation";
+import { MenuToggle } from "@/app/menu-toggle";
 
-const sidebar = {
+const sidebar: Variants = {
   open: {
     clipPath: "circle(150% at calc(100% - 40px) 40px)",
     transition: {
@@ -32,7 +33,7 @@ const MobileNav = ({
   openChange?: (isOpen: boolean) => void;
 }) => {
   const [isOpen, toggleOpen] = useCycle(false, true);
-  const containerRef = useRef(null);
+  const containerRef = useRef<HTMLElement | null>(null);
   const { height } = useDimensions(containerRef);
 
   useEffect(() => {

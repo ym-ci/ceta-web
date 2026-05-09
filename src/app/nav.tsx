@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { MenuToggle } from "./menu-toggle";
 
-const navItems = [
+export const navItems = [
   { href: "/", label: "CETA" },
   { href: "#info", label: "Details" },
 ];

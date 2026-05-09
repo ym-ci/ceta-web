@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
-import { MenuItem } from "@/app/(dark)/ceta/mobile/menu-item";
-import { nav } from "@/app/(dark)/ceta/nav";
+import { MenuItem } from "@/app/mobile/menu-item";
+import { navItems } from "@/app/nav";
 
 const variants = {
   open: {
@@ -19,7 +19,7 @@ export const Navigation = ({
   close: () => void;
 }) => (
   <motion.ul variants={variants} className={"absolute top-[100px] w-full"}>
-    {nav.map((stuff, i: number) => (
+    {navItems.map((stuff, i: number) => (
       <MenuItem
         i={i}
         key={i}
