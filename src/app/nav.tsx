@@ -97,7 +97,7 @@ export default function Navbar() {
             className="absolute left-4 right-4 top-20 rounded-3xl border border-white/10 bg-black/70 p-4 shadow-2xl backdrop-blur-xl md:hidden"
           >
             <nav className="flex flex-col gap-2" aria-label="Mobile navigation">
-              {[{ href: "https://ymci.ca/", label: "YMCI" }, ...navItems, { href: "/ceta", label: "Watch" }].map((item) => (
+              {[{ href: "https://ymci.ca/", label: "YMCI" }, ...navItems, { href: "https://forms.gle/Qi6wvBmajwB5B1J56", label: "Register" }].map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
@@ -109,6 +109,21 @@ export default function Navbar() {
                 </Link>
               ))}
             </nav>
+            {/* 
+            // Watch Mobile Navigation - Turn on when registration closes
+            <nav className="flex flex-col gap-2" aria-label="Mobile navigation">
+              {[{ href: "https://ymci.ca/", label: "YMCI" }, ...navItems, { href: "/live", label: "Watch" }].map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => handleNavClick(item.href)}
+                  className="rounded-2xl px-4 py-3 text-sm font-semibold text-slate-200 hover:bg-white/10"
+                  target={item.href === "/live" ? "_blank" : undefined}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav> */}
           </motion.div>
         )}
       </AnimatePresence>
